@@ -1,0 +1,13 @@
+.topNavBar {
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  height: 64px;
+}
+
+.brandText {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #1a73e8;
+  letter-spacing: 0.5px;
+}

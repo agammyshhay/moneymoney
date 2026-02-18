@@ -1,0 +1,110 @@
+.modalBody {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Status Icon Circle */
+.statusIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  font-size: 32px;
+}
+
+.statusIconSuccess {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.statusIconError {
+  background-color: #fce8e6;
+  color: #d93025;
+}
+
+.statusSection {
+  margin-bottom: 1.5rem;
+}
+
+.statusTitle {
+  font-weight: 600;
+  color: #202124;
+}
+
+/* Transactions Summary */
+.transactionsSection {
+  text-align: start;
+  margin-top: 1.5rem;
+}
+
+.transactionsTitle {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #5f6368;
+}
+
+.transactionItem {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.transactionBadge {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-size: 0.9rem;
+}
+
+/* Empty State */
+.emptyState {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dadce0;
+  text-align: center;
+}
+
+.emptyText {
+  margin: 0;
+  color: #5f6368;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* Error Section */
+.errorSection {
+  text-align: start;
+  margin-top: 1.5rem;
+  background-color: #fff8f7;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.errorTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #d93025;
+}
+
+.errorList {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  color: #3c4043;
+}
+
+.errorItem {
+  margin-bottom: 0.5rem;
+}
+
+/* Close Button */
+.closeSection {
+  margin-top: 2rem;
+}
+
+.closeButton {
+  min-width: 120px;
+  font-weight: 500;
+}

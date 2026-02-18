@@ -1,0 +1,104 @@
+/* [CUSTOM-ONBOARDING-START] */
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: #5f6368;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.instructions {
+  padding-inline-start: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.instruction {
+  font-size: 0.95rem;
+  color: #3c4043;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.openButton {
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+}
+
+.inputGroup {
+  margin-bottom: 1rem;
+}
+
+.input {
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fafafa;
+}
+
+.input:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  outline: none;
+  background-color: #fff;
+}
+
+.testRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.testButton {
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.testSuccess {
+  font-size: 0.85rem;
+  color: #34a853;
+  font-weight: 500;
+}
+
+.testError {
+  font-size: 0.85rem;
+  color: #ea4335;
+  font-weight: 500;
+}
+
+.skipStepLink {
+  background: none;
+  border: none;
+  color: #5f6368;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  text-align: center;
+  margin-top: auto;
+  transition: color 0.2s;
+}
+
+.skipStepLink:hover {
+  color: #1a73e8;
+  text-decoration: underline;
+}
+/* [CUSTOM-ONBOARDING-END] */

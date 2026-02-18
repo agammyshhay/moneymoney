@@ -1,0 +1,255 @@
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f8f9fa;
+  direction: rtl;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background-color: #ffffff;
+  border-left: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.02);
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+  padding-inline-end: 8px;
+}
+
+.logoText {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a73e8;
+  letter-spacing: 0.5px;
+}
+
+.navMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.navItem:hover {
+  background-color: #f1f3f4;
+  color: #1a73e8;
+}
+
+.navItemActive {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.navIcon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.8;
+}
+
+.sidebarFooter {
+  border-top: 1px solid #f1f3f4;
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.versionTag {
+  font-size: 12px;
+  color: #9aa0a6;
+  text-align: center;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  padding: 32px 48px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.greeting {
+  font-size: 28px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.date {
+  font-size: 14px;
+  color: #5f6368;
+  font-weight: 400;
+}
+
+/* Hero Section */
+.heroSection {
+  background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+  border-radius: 24px;
+  padding: 32px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(26, 115, 232, 0.2);
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.heroSubtitle {
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.runButton {
+  background-color: white;
+  color: #1a73e8;
+  border: none;
+  padding: 16px 48px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.runButton:hover {
+  transform: scale(1.05);
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.statCard {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #f1f3f4;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.statTitle {
+  font-size: 14px;
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.statTrend {
+  font-size: 13px;
+  color: #188038;
+  background-color: #e6f4ea;
+  padding: 4px 12px;
+  border-radius: 20px;
+  align-self: flex-start;
+  font-weight: 500;
+}
+
+/* Accounts Preview */
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 20px;
+}
+
+.accountsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.accountCard {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.accountCard:hover {
+  border-color: #1a73e8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.bankLogo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.accountName {
+  font-weight: 600;
+  color: #3c4043;
+}
+
+.addAccountCard {
+  border: 2px dashed #e0e0e0;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a73e8;
+}
+
+.addAccountCard:hover {
+  background-color: #f8f9fa;
+  border-color: #1a73e8;
+}

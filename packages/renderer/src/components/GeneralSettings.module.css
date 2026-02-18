@@ -1,0 +1,24 @@
+.container {
+
+}
+
+.card {
+  margin: 20px;
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.input {
+    direction: ltr
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}

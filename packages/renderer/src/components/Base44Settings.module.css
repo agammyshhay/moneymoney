@@ -1,0 +1,109 @@
+.container {
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  margin: 16px 0;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.container:hover {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
+.header {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #202124;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f1f3f4;
+  padding-bottom: 12px;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+.inputGroup {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #5f6368;
+  margin-bottom: 8px;
+  font-weight: 500;
+  display: block;
+}
+
+.input {
+  /* direction: ltr; Removed to allow RTL placeholder */
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fafafa;
+}
+
+.input:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  outline: none;
+  background-color: #fff;
+}
+
+.actionButtonsWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  border-top: 1px solid #f1f3f4;
+  padding-top: 16px;
+}
+
+.buttonPrimary {
+  background-color: #1a73e8 !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: white !important;
+  padding: 8px 24px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition: background-color 0.2s, box-shadow 0.2s !important;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #1765cc !important;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.buttonSecondary {
+  background-color: white !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 4px !important;
+  color: #1a73e8 !important;
+  padding: 8px 24px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: #f1f8ff !important;
+  border-color: #1a73e8 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.statusText {
+  font-size: 0.85rem;
+  color: #5f6368;
+  margin-top: 0;
+  margin-inline-end: 8px;
+  font-style: italic;
+}

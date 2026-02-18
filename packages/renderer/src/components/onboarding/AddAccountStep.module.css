@@ -1,0 +1,133 @@
+/* [CUSTOM-ONBOARDING-START] */
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: #5f6368;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.importerWrapper {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+/* Success state after account added */
+.successState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+  gap: 1rem;
+}
+
+.successIcon {
+  font-size: 3rem;
+  color: #34a853;
+}
+
+.successText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.addedAccount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: #3c4043;
+  font-weight: 500;
+}
+
+.addedAccount i {
+  color: #34a853;
+}
+
+/* Info callout after success */
+.infoCallout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #e8f0fe;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  max-width: 420px;
+}
+
+.infoIcon {
+  font-size: 1.25rem;
+  color: #1a73e8;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.infoText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: #3c4043;
+  line-height: 1.5;
+}
+
+.successActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.addAnotherButton {
+  background: none;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  color: #1a73e8;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.addAnotherButton:hover {
+  background-color: #f1f8ff;
+  border-color: #1a73e8;
+}
+
+.finishButton {
+  background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
+}
+
+.finishButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+}
+/* [CUSTOM-ONBOARDING-END] */

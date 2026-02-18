@@ -1,0 +1,29 @@
+directories:
+  output: dist_release
+  buildResources: buildResources
+
+productName: MoneyMoney
+artifactName: '${productName} Setup ${version}.${ext}'
+
+files:
+  - packages/**/dist/**
+  - packages/main/dist_temp/**
+
+linux:
+  target: deb
+  icon: packages/renderer/src/assets/logos/logoFishOnly.png
+
+publish:
+  - provider: github
+    owner: agammyshhay
+    repo: moneymoney
+    releaseType: release
+
+mac:
+  icon: packages/renderer/src/assets/logos/fishLogo.icns
+win:
+  icon: packages/renderer/src/assets/logos/piggyLogo.ico
+
+extraResources:
+  - from: packages/renderer/src/assets/logos/piggyLogo.ico
+    to: tray-icon.ico

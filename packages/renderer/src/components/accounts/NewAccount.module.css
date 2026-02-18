@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  width: 100%;
+  max-width: 240px;
+  padding: 6px 16px;
+  border: 2px dashed #e0e0e0;
+  box-sizing: border-box;
+  border-radius: 12px;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  cursor: pointer;
+  color: #5f6368;
+}
+
+.container:hover {
+  border-color: #1a73e8;
+  background-color: rgba(26, 115, 232, 0.04);
+  color: #1a73e8;
+  transform: translateY(-2px);
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f1f3f4;
+  margin-inline-end: 12px;
+  transition: all 0.3s ease;
+}
+
+.container:hover .iconWrapper {
+  background-color: rgba(26, 115, 232, 0.1);
+}
+
+.image {
+  opacity: 0.7;
+}
+
+.container:hover .image {
+  opacity: 1;
+  filter: invert(33%) sepia(85%) saturate(2259%) hue-rotate(208deg) brightness(93%) contrast(92%); /* Makes it blue */
+}
+
+.nameWrapper {
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
+  font-weight: 500;
+}

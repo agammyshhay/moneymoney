@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  align-items: center;
+  height: 56px; /* Slightly reduced height to fit more */
+  width: 100%;
+  max-width: 240px;
+  padding: 6px 16px; /* Reduced padding */
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  border-radius: 12px;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.container:hover {
+  border-color: rgba(26, 115, 232, 0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.nameWrapper {
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 0;
+  margin-inline-start: 12px;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notActive {
+  opacity: 0.5;
+}
+
+.actionButton {
+  margin-inline-start: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  color: #5f6368;
+  flex-shrink: 0;
+}
+
+.actionButton:hover {
+  color: #1a73e8;
+}
+
+.actionButtonVisible {
+  opacity: 0.4;
+}
+
+.container:hover .actionButton {
+  opacity: 1;
+}
+
+.newTxnsIndicator {
+  margin-inline-start: 8px;
+}

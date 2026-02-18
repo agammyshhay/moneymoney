@@ -1,0 +1,70 @@
+name: Update israeli-bank-scrapers
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 6 AM UTC daily (morning in Israel)
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+
+      - name: Get current version
+        id: old
+        run: |
+          ver=$(yarn list --pattern israeli-bank-scrapers-core --depth=0 --json --non-interactive --no-progress | jq -r '.data.trees[].name' | cut -d'@' -f2)
+          echo "version=${ver}" >> $GITHUB_OUTPUT
+
+      - name: Upgrade israeli-bank-scrapers-core
+        run: yarn upgrade israeli-bank-scrapers-core --latest
+
+      - name: Get new version
+        id: new
+        run: |
+          ver=$(yarn list --pattern israeli-bank-scrapers-core --depth=0 --json --non-interactive --no-progress | jq -r '.data.trees[].name' | cut -d'@' -f2)
+          echo "version=${ver}" >> $GITHUB_OUTPUT
+
+      - name: Check if version changed
+        id: check
+        run: |
+          if [ "${{ steps.old.outputs.version }}" = "${{ steps.new.outputs.version }}" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install and typecheck
+        if: steps.check.outputs.changed == 'true'
+        run: yarn install && yarn typecheck
+
+      - name: Create pull request
+        if: steps.check.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: deps/israeli-bank-scrapers-core
+          base: master
+          assignees: agammyshhay
+          delete-branch: true
+          commit-message: 'fix: upgrade israeli-bank-scrapers-core to ${{ steps.new.outputs.version }}'
+          title: 'Fix: upgrade scrapers to ${{ steps.new.outputs.version }}'
+          body: |
+            Automated upgrade of israeli-bank-scrapers-core: `${{ steps.old.outputs.version }}` → `${{ steps.new.outputs.version }}`
+
+            **Typecheck:** ✅ Passed
+
+            [View upstream changes](https://github.com/eshaham/israeli-bank-scrapers/compare/v${{ steps.old.outputs.version }}...v${{ steps.new.outputs.version }})

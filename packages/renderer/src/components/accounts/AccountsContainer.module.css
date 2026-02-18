@@ -1,0 +1,114 @@
+/* [CUSTOM-LAYOUT-START] */
+.container {
+    height: 100%;
+    width: 460px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-bottom: 0.75rem;
+}
+
+.title {
+    font-style: normal;
+    font-weight: 500;
+    flex-shrink: 0;
+    text-align: center;
+    margin: 0;
+}
+
+.addAccountLink {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #1a73e8;
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.addAccountLink:hover {
+    background-color: #e8f0fe;
+    color: #0d47a1;
+}
+
+.accountsWrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    overflow-y: auto;
+    flex: 1;
+    padding: 0 10px;
+    width: 100%;
+    gap: 12px;
+    max-height: 100%; /* Ensure it doesn't overflow parent */
+}
+
+/* Custom Scrollbar */
+.accountsWrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.accountsWrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.accountsWrapper::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.accountsWrapper::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* הגדרות עבור שני המצבים */
+.listContainer { width: 320px; }
+.gridContainer { width: 460px; }
+.listWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+/* מותאם לתצוגה של עד 12 חשבונות (6 שורות * 2 טורים) ללא גלילה במסך סטנדרטי */
+.gridWrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    align-content: start;
+    row-gap: 8px; /* Reduced gap to fit more */
+    padding-bottom: 0;
+}
+/* Scroll Fade Indicator */
+.scrollContainer {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.scrollFade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(transparent, rgba(240, 242, 245, 0.95));
+  pointer-events: none;
+  z-index: 1;
+}
+/* [CUSTOM-LAYOUT-END] */

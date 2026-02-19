@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MoneyMoney (Caspion) is an Electron desktop app that automatically scrapes transactions from Israeli banks/credit cards, exports them to JSON, and syncs to the MoneyMoney companion app (Base44 platform). Built on the `israeli-bank-scrapers-core` package.
+MoneyMoney is an Electron desktop app that automatically scrapes transactions from Israeli banks/credit cards, exports them to JSON, and syncs to the MoneyMoney companion app (Base44 platform). Built on the `israeli-bank-scrapers-core` package.
 
 ## Commands
 

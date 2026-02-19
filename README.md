@@ -2,8 +2,7 @@
 
 # MoneyMoney - Automated expense tracking from Israeli banks and credit cards
 
-![Build/Release](https://github.com/brafdlog/caspion/workflows/Build/Release/badge.svg?branch=master&event=push)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/brafdlog/caspion.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brafdlog/caspion/context:javascript)
+![Build/Release](https://github.com/agammyshhay/moneymoney/workflows/Build/Release/badge.svg?branch=master&event=push)
 [![Discord Shield](https://discordapp.com/api/guilds/924617301209260103/widget.png?style=shield)](https://discord.gg/XWWg7xvJyS)
 
 Many people track their expenses with spreadsheets or with budgeting apps (like [YNAB](https://ynab.com/referral/?ref=Z5wPbP0cYTWjdTQj&utm_source=customer_referral)).
@@ -29,7 +28,7 @@ We are in transition to a new UI. Some features don't yet exist in the new UI an
 
 ## Running the app
 
-Download the latest version from [Releases](https://github.com/brafdlog/caspion/releases) page, or build it from source, with the instructions below. (Mac users, you may follow these [instructions](https://github.com/brafdlog/caspion/issues/276#issuecomment-1282111297)).
+Download the latest version from [Releases](https://github.com/agammyshhay/moneymoney/releases) page, or build it from source, with the instructions below.
 
 ### Proxy Support
 
@@ -51,12 +50,12 @@ export NO_PROXY=localhost,127.0.0.1
 # On Windows (Command Prompt)
 set HTTPS_PROXY=http://proxy.example.com:8080
 set NO_PROXY=localhost,127.0.0.1
-caspion.exe
+moneymoney.exe
 
 # On Windows (PowerShell)
 $env:HTTPS_PROXY="http://proxy.example.com:8080"
 $env:NO_PROXY="localhost,127.0.0.1"
-.\caspion.exe
+.\moneymoney.exe
 ```
 
 The proxy settings will be automatically applied to:
@@ -103,7 +102,7 @@ Depending on your distribution, you will need to run the following command:
 
 #### Mac Prerequisites
 
-If when installing you get a message saying caspion is damaged and can't be opened, run this in the terminal `sudo xattr -r -d com.apple.quarantine /Applications/caspion.app/
+If when installing you get a message saying MoneyMoney is damaged and can't be opened, run this in the terminal `sudo xattr -r -d com.apple.quarantine /Applications/MoneyMoney.app/
 `
 
 For M1 macs, if you get an error while scraping due to not being able to download chromium, download it manually as described [here](https://linguinecode.com/post/how-to-fix-m1-mac-puppeteer-chromium-arm64-bug). Then in the settings, set the chromium path to be the result of `which chromium`
@@ -146,13 +145,13 @@ YNAB is a budgeting software. If you want to manage your budget there and have y
 ### Google Sheets integration setup - when building from source code (optional)
 
 If you set Google Sheets as an exporter the transactions results will appear in a dedicated sheet.
-In the release version of Caspion, this integration will work out of the box. 
+In the release version of MoneyMoney, this integration will work out of the box. 
 If you wish though to build/debug this from source, you will need to setup your own test OAuth 2.0 Client on GCP (Google Cloud Platform). Follow these steps:
 
 - Create a new project in [GCP](https://console.cloud.google.com/apis/credentials)
 - Enable [Google Sheets API](https://console.cloud.google.com/apis/api/sheets.googleapis.com)
 - On the left panel, click to create [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent)
-- Now you are ready to create your credentials that will be used later on by Caspion
+- Now you are ready to create your credentials that will be used later on by MoneyMoney
   - On the left panel, click "Credentials" -> "CREATE CREDENTIALS" (on the top) -> "OAuth 2.0 Client IDs"
   - Application Type: "Web Application"
   - Authorized JavaScript origins, add: `http://localhost`

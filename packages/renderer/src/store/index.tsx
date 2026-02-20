@@ -14,9 +14,13 @@ export const StoresProvider = ({ children }: { children: React.ReactNode }) => {
   useInitAppInfoStore();
   // TODO: create useInitConfigStore
   useEffect(() => {
-    getConfig().then((config) => {
-      configStore.updateConfig(config as Config);
-    });
+    getConfig()
+      .then((config) => {
+        configStore.updateConfig(config as Config);
+      })
+      .catch((e) => {
+        console.error('Failed to load config, using defaults', e);
+      });
   }, []);
   return (
     <StoreProvider value={store}>

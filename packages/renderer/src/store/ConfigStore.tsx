@@ -172,7 +172,7 @@ export class ConfigStore {
   // [CUSTOM-ONBOARDING-START]
   get isFirstRun(): boolean {
     const config = this.config;
-    if (!config?.scraping) return false;
+    if (!config?.scraping) return true;
     const noAccounts = config.scraping.accountsToScrape.length === 0;
     const noUuid = !config.outputVendors?.json?.options?.base44UserUuid;
     return noAccounts && noUuid;

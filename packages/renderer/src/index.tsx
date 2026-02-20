@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.rtl.css';
 import { configure } from 'mobx';
 import React from 'react';
 import { createRoot } from 'react-dom/client';

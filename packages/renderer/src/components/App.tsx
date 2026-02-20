@@ -1,6 +1,7 @@
 import { StoresProvider } from '../store';
 import './App.css';
 import Body from './Body';
+import ErrorBoundary from './ErrorBoundary';
 import TopBar from './topBar/TopBar';
 import ConceptMockup from './ConceptMockup';
 // [CUSTOM-UPDATE-START]
@@ -16,15 +17,17 @@ function App() {
   }
 
   return (
-    <StoresProvider>
-      <div className="App">
-        <TopBar />
-        {/* [CUSTOM-UPDATE-START] */}
-        <UpdateToast />
-        {/* [CUSTOM-UPDATE-END] */}
-        <Body />
-      </div>
-    </StoresProvider>
+    <ErrorBoundary>
+      <StoresProvider>
+        <div className="App">
+          <TopBar />
+          {/* [CUSTOM-UPDATE-START] */}
+          <UpdateToast />
+          {/* [CUSTOM-UPDATE-END] */}
+          <Body />
+        </div>
+      </StoresProvider>
+    </ErrorBoundary>
   );
 }
 

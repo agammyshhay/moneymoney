@@ -85,7 +85,11 @@ function ReportProblemModal({ show, onClose }: ReportProblemModalProps) {
     }
 
     const url = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(form.title.trim())}&body=${encodeURIComponent(body)}`;
-    await openExternal(url);
+    try {
+      await openExternal(url);
+    } catch {
+      // If opening the URL fails, still allow the modal to close
+    }
 
     setOpened(true);
     setTimeout(() => {

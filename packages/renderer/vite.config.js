@@ -47,6 +47,16 @@ const config = {
     renderer.vite({
       preloadEntry: join(PACKAGE_ROOT, '../preload/src/index.ts'),
     }),
+    {
+      name: 'html-transform',
+      enforce: 'post',
+      generateBundle(options, bundle) {
+        const htmlChunk = bundle['index.html'];
+        if (htmlChunk && htmlChunk.type === 'asset' && typeof htmlChunk.source === 'string') {
+          htmlChunk.source = htmlChunk.source.replace('href="./bootstrap.rtl.min.css"', 'href="bootstrap.rtl.min.css"');
+        }
+      },
+    },
   ],
 };
 

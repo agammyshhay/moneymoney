@@ -93,6 +93,14 @@ Companion web app integration that pushes scraped transactions to MoneyMoney (bu
 
 Vite 5 with per-package configs (`vite.config.js` in each package). Main builds in SSR/Node mode, preload and renderer target Chrome/browser. Uses `unplugin-auto-expose` for preload API auto-exposure.
 
+### Renderer Static Assets & Electron Path Handling
+
+- **Static assets** live in `packages/renderer/public/` (Bootstrap CSS, Bootstrap Icons CSS + woff/woff2 fonts, Outfit font CSS). Vite copies these to `dist/` as-is during build.
+- **`.gitignore` has a `public` pattern** — new files in `public/` require `git add -f` to track them.
+- **Vite `html-transform` plugin** (`packages/renderer/vite.config.js`) rewrites CSS `href` paths from absolute (`/bootstrap.rtl.min.css`) to relative (`bootstrap.rtl.min.css`) in the built `index.html`. This is required because Electron's `file://` protocol resolves `/foo` to the filesystem root (e.g. `C:/foo`), not the app directory.
+- **If adding new static CSS/font files**: add the `<link>` to `packages/renderer/index.html` with a `/` prefix, then add a matching `.replace()` line in the `html-transform` plugin to strip it for production.
+- **Dev vs production caveat**: `yarn watch` uses Vite's dev server where `/` resolves to the project root (so absolute paths work). `yarn dist` builds for `file://` where they break. Always test production builds after changing static asset paths.
+
 ## Key Conventions
 
 - **ESM throughout** — `"type": "module"` in root package.json

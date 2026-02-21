@@ -136,7 +136,7 @@ export class ConfigStore {
   }
 
   get importers(): Importer[] {
-    if (!this.config) return [];
+    if (!this.config?.scraping) return [];
     return this.config.scraping.accountsToScrape.map(({ id, key, active, loginFields }) => {
       return {
         ...createAccountObject(id, key, AccountType.IMPORTER, !!active, this.accountScrapingData.get(key)),
@@ -146,7 +146,7 @@ export class ConfigStore {
   }
 
   get exporters(): Exporter[] {
-    if (!this.config) return [];
+    if (!this.config?.outputVendors) return [];
     return Object.entries(this.config.outputVendors)
       .filter(([key]) => key === OutputVendorName.JSON)
       .map(([exporterKey, exporter]) => {

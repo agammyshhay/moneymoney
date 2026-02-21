@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getConfig } from '@/backend/configManager/configManager';
@@ -11,6 +11,15 @@ export function setIsQuitting(value: boolean) {
 }
 
 async function createWindow() {
+  Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      {
+        label: 'Edit',
+        submenu: [{ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }],
+      },
+    ]),
+  );
+
   const browserWindow = new BrowserWindow({
     show: false,
     width: 1280,

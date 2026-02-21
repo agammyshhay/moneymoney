@@ -178,20 +178,18 @@ const Body = () => {
           <SidebarTips />
           {/* [CUSTOM-SIDEBAR-TIPS-END] */}
           <Stack direction="horizontal" className={styles.customGap}>
-            {configStore.config?.scraping && (
-              <AccountsContainer
-                title="בנקים וכרטיסי אשראי"
-                accountsCount={configStore.importers.length}
-                onAddAccount={newScraperClicked}
-              >
-                <Importers
-                  accounts={configStore.importers}
-                  isScraping={configStore.isScraping}
-                  showModal={showModal}
-                  runSingleAccount={runSingleAccount}
-                />
-              </AccountsContainer>
-            )}
+            <AccountsContainer
+              title="בנקים וכרטיסי אשראי"
+              accountsCount={configStore.importers.length}
+              onAddAccount={newScraperClicked}
+            >
+              <Importers
+                accounts={configStore.importers}
+                isScraping={configStore.isScraping}
+                showModal={showModal}
+                runSingleAccount={runSingleAccount}
+              />
+            </AccountsContainer>
           </Stack>
         </div>
 

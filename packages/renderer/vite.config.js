@@ -54,14 +54,14 @@ const config = {
         const htmlChunk = bundle['index.html'];
         if (htmlChunk && htmlChunk.type === 'asset' && typeof htmlChunk.source === 'string') {
           htmlChunk.source = htmlChunk.source
-            .replace('href="./bootstrap.rtl.min.css"', 'href="bootstrap.rtl.min.css"')
-            .replace('href="./bootstrap-icons.min.css"', 'href="bootstrap-icons.min.css"')
-            .replace('href="./fonts/outfit.css"', 'href="fonts/outfit.css"')
+            .replace('href="/bootstrap.rtl.min.css"', 'href="bootstrap.rtl.min.css"')
+            .replace('href="/bootstrap-icons.min.css"', 'href="bootstrap-icons.min.css"')
+            .replace('href="/fonts/outfit.css"', 'href="fonts/outfit.css"')
             .replace(/src="\.\//g, 'src="')
             .replace(/href="\.\//g, 'href="');
         }
-      }
-    }
+      },
+    },
   ],
 };
 

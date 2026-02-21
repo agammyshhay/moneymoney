@@ -37,7 +37,12 @@ vi.mock('electron', () => {
     },
   };
 
-  return { BrowserWindow: bw, app };
+  const Menu = {
+    setApplicationMenu: vi.fn(),
+    buildFromTemplate: vi.fn(() => ({})),
+  };
+
+  return { BrowserWindow: bw, app, Menu };
 });
 
 beforeEach(() => {

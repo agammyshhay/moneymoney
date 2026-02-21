@@ -108,7 +108,26 @@ export class ConfigStore {
   // TODO: move this to a separate store
   accountScrapingData: Map<CompanyTypes | OutputVendorName, AccountScrapingData>;
   constructor() {
-    this.config = {} as Config;
+    this.config = {
+      scraping: {
+        numDaysBack: 90,
+        showBrowser: false,
+        accountsToScrape: [],
+        timeout: 72000,
+        maxConcurrency: 6,
+      },
+      outputVendors: {
+        json: {
+          active: true,
+          options: {
+            filePath: 'transaction.json',
+            base44Url: '',
+            base44ApiKey: '',
+            base44UserUuid: '',
+          },
+        },
+      },
+    } as Config;
     this.accountScrapingData = new Map();
 
     // [CUSTOM-HISTORY-START]

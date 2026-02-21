@@ -24,6 +24,7 @@ async function createWindow() {
     show: false,
     width: 1280,
     height: 800,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -47,9 +48,6 @@ async function createWindow() {
       console.log('Showing window');
       browserWindow?.show();
     }
-
-    // Hide menu bar
-    browserWindow?.setMenuBarVisibility(false);
 
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();

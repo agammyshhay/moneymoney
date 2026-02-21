@@ -37,9 +37,10 @@ export default function EditImporter({ handleSave, handleDelete, importer }: Edi
   };
 
   const checkFieldsValidity = (fieldsToCheck: Record<string, string>) => {
+    const requiredFields = IMPORTERS_LOGIN_FIELDS[importer.companyId as keyof typeof IMPORTERS_LOGIN_FIELDS] ?? [];
     setValidated(
-      Object.entries(fieldsToCheck).every(([key, value]) =>
-        checkFieldValidity(key as keyof typeof LOGIN_FIELD_MIN_LENGTH, value),
+      requiredFields.every((field) =>
+        checkFieldValidity(field as keyof typeof LOGIN_FIELD_MIN_LENGTH, fieldsToCheck[field] ?? ''),
       ),
     );
   };

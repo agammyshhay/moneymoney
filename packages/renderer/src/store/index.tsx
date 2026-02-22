@@ -1,4 +1,5 @@
 import { getConfig } from '#preload';
+import { runInAction } from 'mobx';
 import { useEffect } from 'react';
 import { type Config } from '../types';
 import { AppInfoStoreProvider, useInitAppInfoStore } from './AppInfoStore';
@@ -20,6 +21,9 @@ export const StoresProvider = ({ children }: { children: React.ReactNode }) => {
       })
       .catch((e) => {
         console.error('Failed to load config, using defaults', e);
+        runInAction(() => {
+          configStore.configLoaded = true;
+        });
       });
   }, []);
   return (

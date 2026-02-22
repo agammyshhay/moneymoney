@@ -88,6 +88,7 @@ const saveConfigIntoFile = (config?: Config) => {
 
 export class ConfigStore {
   config: Config;
+  configLoaded = false;
 
   chromeDownloadPercent = 0;
   nextAutomaticScrapeDate?: Date | null;
@@ -142,11 +143,14 @@ export class ConfigStore {
     makeAutoObservable(this);
 
     autorun(() => {
-      saveConfigIntoFile(this.config);
+      if (this.configLoaded) {
+        saveConfigIntoFile(this.config);
+      }
     });
   }
 
   updateConfig(config: Config) {
+    this.configLoaded = true;
     this.config = config;
     // Set default periodic scraping interval to 2 hours if not set
     if (this.config?.scraping && !this.config.scraping.periodicScrapingIntervalHours) {
@@ -190,6 +194,7 @@ export class ConfigStore {
 
   // [CUSTOM-ONBOARDING-START]
   get isFirstRun(): boolean {
+    if (!this.configLoaded) return false;
     const config = this.config;
     if (!config?.scraping) return true;
     const noAccounts = config.scraping.accountsToScrape.length === 0;

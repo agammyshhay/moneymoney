@@ -48,8 +48,14 @@ const Body = () => {
   // [CUSTOM-AUTO-RUN-END]
 
   // [CUSTOM-ONBOARDING-START]
+  const wizardTriggered = useRef(false);
   const [wizardDismissed, setWizardDismissed] = useState(false);
-  const showWizard = !!configStore.isFirstRun && !wizardDismissed;
+
+  if (configStore.isFirstRun && configStore.configLoaded) {
+    wizardTriggered.current = true;
+  }
+
+  const showWizard = wizardTriggered.current && !wizardDismissed;
   // [CUSTOM-ONBOARDING-END]
 
   const cleanAndScrape = useCallback(async () => {
@@ -99,6 +105,7 @@ const Body = () => {
 
   // [CUSTOM-AUTO-RUN-START]
   useEffect(() => {
+    if (!configStore.configLoaded) return;
     // [CUSTOM-ONBOARDING-START] - Suppress auto-run while wizard is open
     if (showWizard) return;
     // [CUSTOM-ONBOARDING-END]
@@ -106,7 +113,7 @@ const Body = () => {
       hasAutoRun.current = true;
       cleanAndScrape();
     }
-  }, [configStore.config, cleanAndScrape, showWizard]);
+  }, [configStore.config, configStore.configLoaded, cleanAndScrape, showWizard]);
   // [CUSTOM-AUTO-RUN-END]
 
   // Auto-trigger scrape when periodic sync is overdue

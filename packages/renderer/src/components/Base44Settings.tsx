@@ -53,7 +53,7 @@ function Base44Settings() {
               setIsTestingBase44(false);
             }
           }}
-          disabled={isTestingBase44}
+          disabled={isTestingBase44 || !base44UserUuid.trim()}
         >
           בדוק חיבור
         </Button>
@@ -77,7 +77,7 @@ function Base44Settings() {
               setIsSyncingBase44(false);
             }
           }}
-          disabled={isSyncingBase44}
+          disabled={isSyncingBase44 || !base44UserUuid.trim()}
         >
           סנכרן עכשיו
         </Button>

@@ -8,10 +8,8 @@ import { createClient, validateToken } from '@/backend/export/outputVendors/goog
 import { createSpreadsheet } from '@/backend/export/outputVendors/googleSheets/googleSheets';
 import { getAllSpreadsheets } from '@/backend/export/outputVendors/googleSheets/googleSheetsInternalAPI';
 import { getYnabAccountData } from '@/manual/setupHelpers';
-import { syncExistingJsonToBase44 } from '@/backend/export/outputVendors/json/json';
+import { sendTransactionsToBase44, syncExistingJsonToBase44 } from '@/backend/export/outputVendors/json/json';
 import { dialog, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
-import http from 'http';
-import https from 'https';
 import { discord, repository } from '../../../../package.json';
 import os from 'os';
 import { getConfigHandler, updateConfigHandler } from './configHandlers';
@@ -57,79 +55,25 @@ const functions: Record<string, Listener> = {
   createSpreadsheet: (_, spreadsheetTitle: string, credentials: Credentials) =>
     createSpreadsheet(spreadsheetTitle, credentials),
   testBase44Connection: async () => {
-    const config = await getConfig();
-    const jsonOptions = config.outputVendors.json?.options;
-
-    // Use defaults if not provided in config
-    const urlStr = (jsonOptions?.base44Url || BASE44_DEFAULT_CONFIG.url).trim();
-    const base44ApiKey = jsonOptions?.base44ApiKey || BASE44_DEFAULT_CONFIG.apiKey;
-
-    if (!urlStr || !base44ApiKey) {
-      return { ok: false, status: 0, error: 'Missing configuration' };
-    }
-
     try {
-      const urlObj = new URL(urlStr);
-      const isHttps = urlObj.protocol === 'https:';
-      const requestLib = isHttps ? https : http;
+      const config = await getConfig();
+      const jsonOptions = config.outputVendors.json?.options;
 
-      let payload: unknown;
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'x-api-secret': base44ApiKey,
-        'User-Agent': 'MoneyMoney/1.0.0',
-        Accept: 'application/json',
-      };
+      const base44Url = (jsonOptions?.base44Url || BASE44_DEFAULT_CONFIG.url).trim();
+      const base44ApiKey = (jsonOptions?.base44ApiKey || BASE44_DEFAULT_CONFIG.apiKey).trim();
+      const base44UserUuid = jsonOptions?.base44UserUuid?.trim();
 
-      if (jsonOptions?.base44UserUuid) {
-        payload = {
-          user_uuid: jsonOptions.base44UserUuid,
-          transactions: [],
-        };
-      } else {
-        // Fallback for when UUID is missing, though the server might reject it.
-        // We try to send a valid-ish structure or just a ping if that's what we have.
-        // Based on the snippet, user_uuid is required.
-        // Let's send a dummy or empty one if we can't do better, or maybe the user hasn't set it yet.
-        // For testing connection, we'll try to send the structure with empty uuid or null.
-        payload = {
-          user_uuid: '',
-          transactions: [],
-        };
+      if (!base44UserUuid) {
+        return { ok: false, status: 0, error: 'יש להזין קוד חיבור ל-MoneyMoney' };
+      }
+      if (!base44Url || !base44ApiKey) {
+        return { ok: false, status: 0, error: 'Missing configuration' };
       }
 
-      const body = JSON.stringify(payload);
-      headers['Content-Length'] = Buffer.byteLength(body).toString();
-
-      const resObj = await new Promise<{ statusCode?: number; body: string }>((resolve, reject) => {
-        const req = requestLib.request(
-          {
-            protocol: urlObj.protocol,
-            hostname: urlObj.hostname,
-            port: urlObj.port || (isHttps ? 443 : 80),
-            path: `${urlObj.pathname}${urlObj.search}`,
-            method: 'POST',
-            headers,
-          },
-          (res) => {
-            const chunks: Buffer[] = [];
-            res.on('data', (d) => chunks.push(Buffer.isBuffer(d) ? d : Buffer.from(d)));
-            res.on('end', () => {
-              resolve({ statusCode: res.statusCode, body: Buffer.concat(chunks).toString('utf8') });
-            });
-          },
-        );
-        req.on('error', reject);
-        req.write(body);
-        req.end();
-      });
-      const ok = !!resObj.statusCode && resObj.statusCode >= 200 && resObj.statusCode < 300;
-      const error = !ok
-        ? `Status ${resObj.statusCode} from ${urlStr}. Body: ${resObj.body.substring(0, 500)}`
-        : undefined;
-      return { ok, status: resObj.statusCode ?? 0, body: resObj.body, error };
+      await sendTransactionsToBase44([], base44Url, base44ApiKey, base44UserUuid);
+      return { ok: true, status: 200 };
     } catch (e) {
-      return { ok: false, status: 0, error: `Error with ${urlStr}: ${(e as Error).message}` };
+      return { ok: false, status: 0, error: (e as Error).message };
     }
   },
   syncJsonToBase44: async () => {

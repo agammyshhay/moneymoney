@@ -1,6 +1,6 @@
 import keytar from 'keytar';
 
-const serviceName = import.meta.env.VITE_APP_NAME;
+const serviceName = import.meta.env.VITE_APP_NAME || 'MoneyMoney';
 const accountName = 'crypto';
 
 export async function loadSALT() {

@@ -9,7 +9,14 @@ import GeneralSettings from '../GeneralSettings';
 import logoFishOnly from '../../assets/logos/logoFishOnly.svg';
 import styles from './TopBar.module.css';
 
-function TopBar() {
+// [CUSTOM-WEBVIEW-START]
+interface TopBarProps {
+  showWebApp: boolean;
+  setShowWebApp: (show: boolean) => void;
+}
+// [CUSTOM-WEBVIEW-END]
+
+function TopBar({ showWebApp, setShowWebApp }: TopBarProps) {
   const [show, setShow] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
@@ -30,6 +37,14 @@ function TopBar() {
 
           {/* Centered Buttons */}
           <Stack direction="horizontal" gap={4} className="justify-content-center w-100" style={{ height: '100%' }}>
+            {/* [CUSTOM-WEBVIEW-START] */}
+            <NavButton
+              onClick={() => setShowWebApp(!showWebApp)}
+              text="אפליקציית ווב"
+              icon={<i className="bi bi-globe2"></i>}
+              isActive={showWebApp}
+            />
+            {/* [CUSTOM-WEBVIEW-END] */}
             <NavButton
               onClick={() => setShowSecurity(true)}
               text="איך המידע שלי נשמר?"

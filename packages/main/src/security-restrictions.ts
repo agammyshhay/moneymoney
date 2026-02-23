@@ -16,6 +16,10 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<string, Set<Permission>>(
     ? [[new URL(import.meta.env.VITE_DEV_SERVER_URL).origin, new Set()]]
     : [],
 );
+// [CUSTOM-WEBVIEW-START]
+// Allow Base44 companion web app origin for embedded iframe
+ALLOWED_ORIGINS_AND_PERMISSIONS.set('https://moneym.base44.app', new Set());
+// [CUSTOM-WEBVIEW-END]
 
 /**
  * A list of origins that you allow open IN BROWSER.

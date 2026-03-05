@@ -8,7 +8,6 @@ MoneyMoney is a desktop app that automatically fetches transactions from Israeli
 
 Built on top of [Caspion](https://github.com/brafdlog/caspion), the open-source budget tracking app. Internally it uses the [Israeli bank scrapers](https://github.com/eshaham/israeli-bank-scrapers) npm package.
 
-If you want to ask questions, suggest features or report issues, join [our Discord channel](https://discord.gg/XWWg7xvJyS).
 
 ## Features
 
@@ -83,15 +82,6 @@ The proxy settings apply to Chromium browser downloads, bank scraping operations
 
 Use the **Report a Problem** button in the app. It will show you recent logs and the log file location.
 
-You can also open Developer Tools and send us a screenshot of the console messages on [Discord](https://discord.gg/XWWg7xvJyS).
-
-<details>
-<summary>How to open Developer Tools</summary>
-
-![alt text](./docs/toggle-developer-tools.png)
-
-![alt text](./docs/dev-tools-console.png)
-</details>
 
 ## Development
 

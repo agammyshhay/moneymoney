@@ -128,7 +128,6 @@ Vite 5 with per-package configs (`vite.config.js` in each package). Main builds 
 Set via Vite env for build-time injection:
 - `VITE_GOOGLE_CLIENT_ID` / `VITE_GOOGLE_CLIENT_SECRET` — Google Sheets OAuth (no longer needed; Google Sheets exporter is disabled)
 - `VITE_SENTRY_DSN` — Error tracking
-- `VITE_SEGMENT_WRITE_KEY` — Analytics
 
 Runtime proxy support: `HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY`, `NO_PROXY`.
 

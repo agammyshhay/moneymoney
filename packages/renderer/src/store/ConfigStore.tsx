@@ -286,6 +286,14 @@ export class ConfigStore {
     // Trigger modal on process completion or catastrophic failure
     // EXPORT_PROCESS_END usually has no payload (budgetTrackingEvent is undefined), so we must check this OUTSIDE the payload check.
     if (eventName === 'EXPORT_PROCESS_END' || eventName === 'GENERAL_ERROR') {
+      // Safety net: reset any accounts still stuck in IN_PROGRESS
+      if (eventName === 'GENERAL_ERROR') {
+        this.accountScrapingData.forEach((data) => {
+          if (data.status === AccountStatus.IN_PROGRESS) {
+            data.status = AccountStatus.ERROR;
+          }
+        });
+      }
       this.setShowSummaryModal(true);
       this.addSyncHistoryEntry();
       if (eventName === 'EXPORT_PROCESS_END') {

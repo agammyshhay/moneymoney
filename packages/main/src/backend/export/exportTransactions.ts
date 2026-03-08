@@ -64,6 +64,7 @@ export async function createTransactionsInExternalVendors(
           new ExporterEvent({
             message: (e as Error).message,
             error: e as Error,
+            status: AccountStatus.ERROR,
             ...baseEvent,
           }),
         );

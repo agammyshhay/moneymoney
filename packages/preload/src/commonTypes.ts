@@ -28,6 +28,8 @@ export interface Config {
     accountsToScrape: AccountToScrapeConfig[];
     chromiumPath?: string;
     maxConcurrency?: number;
+    periodicScrapingIntervalHours?: number;
+    lastScrapeDate?: string;
   };
   // [CUSTOM-STARTUP-START]
   runAtStartup?: boolean;
@@ -63,6 +65,7 @@ export interface JsonConfig extends OutputVendorConfigBase {
     filePath: string;
     base44Url?: string;
     base44ApiKey?: string;
+    base44UserUuid?: string;
   };
 }
 
@@ -240,6 +243,8 @@ export interface Config {
     chromiumPath?: string;
     maxConcurrency?: number;
     timeout: number;
+    periodicScrapingIntervalHours?: number;
+    lastScrapeDate?: string;
   };
   useReactUI?: boolean;
   // [CUSTOM-STARTUP-START]

@@ -25,6 +25,7 @@ export interface Config {
     maxConcurrency?: number;
     timeout: number;
     periodicScrapingIntervalHours?: number;
+    lastScrapeDate?: string;
   };
   useReactUI?: boolean;
   // [CUSTOM-STARTUP-START]

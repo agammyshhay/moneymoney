@@ -1,6 +1,6 @@
 import { type Config } from '@/backend/commonTypes';
 import { createTransactionsInExternalVendors } from '@/backend/export/exportTransactions';
-import { scrapeFinancialAccountsAndFetchTransactions } from '@/backend/import/importTransactions';
+import { cancelScraping, scrapeFinancialAccountsAndFetchTransactions } from '@/backend/import/importTransactions';
 import moment from 'moment';
 import * as configManager from './configManager/configManager';
 import * as Events from './eventEmitters/EventEmitter';
@@ -9,7 +9,7 @@ import outputVendors from './export/outputVendors';
 import logger from '../logging/logger';
 
 export { CompanyTypes } from 'israeli-bank-scrapers-core';
-export { Events, configManager, outputVendors };
+export { cancelScraping, Events, configManager, outputVendors };
 
 let intervalId: NodeJS.Timeout | null = null;
 
@@ -52,12 +52,12 @@ export async function scrapeAndUpdateOutputVendors(config: Config, optionalEvent
     new Events.ImportStartEvent(`Starting to scrape from ${startDate} to today`, nextAutomaticScrapeDate),
   );
 
-  const companyIdToTransactions = await scrapeFinancialAccountsAndFetchTransactions(
-    config.scraping,
-    startDate,
-    eventPublisher,
-  );
   try {
+    const companyIdToTransactions = await scrapeFinancialAccountsAndFetchTransactions(
+      config.scraping,
+      startDate,
+      eventPublisher,
+    );
     return await createTransactionsInExternalVendors(
       config.outputVendors,
       companyIdToTransactions,
@@ -65,7 +65,7 @@ export async function scrapeAndUpdateOutputVendors(config: Config, optionalEvent
       eventPublisher,
     );
   } catch (e) {
-    logger.error('Failed to create transactions in external vendors', e);
+    logger.error('Scraping or export failed', e);
     await eventPublisher.emit(
       EventNames.GENERAL_ERROR,
       new Events.BudgetTrackingEvent({

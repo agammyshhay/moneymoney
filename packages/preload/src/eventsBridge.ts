@@ -121,3 +121,11 @@ export async function testBase44Connection(): Promise<{ ok: boolean; status: num
 export async function syncJsonToBase44(): Promise<{ ok: boolean; count?: number; error?: string }> {
   return electron.ipcRenderer.invoke('syncJsonToBase44');
 }
+
+export async function cancelScrape(): Promise<void> {
+  return electron.ipcRenderer.invoke('cancelScrape');
+}
+
+export async function getDataFolder(): Promise<string> {
+  return electron.ipcRenderer.invoke('getDataFolder');
+}

@@ -1,5 +1,10 @@
-import { App } from '@/app-globals';
-import { scrapeAndUpdateOutputVendors, setPeriodicScrapingIfNeeded, stopPeriodicScraping } from '@/backend';
+import { App, userDataPath } from '@/app-globals';
+import {
+  cancelScraping,
+  scrapeAndUpdateOutputVendors,
+  setPeriodicScrapingIfNeeded,
+  stopPeriodicScraping,
+} from '@/backend';
 import { type Config, type Credentials } from '@/backend/commonTypes';
 import { getConfig } from '@/backend/configManager/configManager';
 import { BudgetTrackingEventEmitter } from '@/backend/eventEmitters/EventEmitter';
@@ -37,6 +42,8 @@ const functions: Record<string, Listener> = {
   getYnabAccountData,
   getLogsInfo: getLogsInfoHandler,
   stopPeriodicScraping,
+  cancelScrape: () => cancelScraping(),
+  getDataFolder: () => userDataPath,
   getAppInfo: async () => {
     return {
       sourceCommitShort: import.meta.env.VITE_SOURCE_COMMIT_SHORT,

@@ -30,65 +30,90 @@ type ScrapingConfig = Config['scraping'];
 
 const TRANSACTION_STATUS_COMPLETED = 'completed';
 
+let limiter: Bottleneck | null = null;
+let cancelled = false;
+let scraping = false;
+
+export function cancelScraping() {
+  if (!scraping) return;
+  cancelled = true;
+  if (limiter) {
+    limiter.stop({ dropWaitingJobs: true });
+  }
+  logger.log('Scraping cancellation requested');
+}
+
+export function isScraping() {
+  return scraping;
+}
+
 export async function scrapeFinancialAccountsAndFetchTransactions(
   scrapingConfig: ScrapingConfig,
   startDate: Date,
   eventPublisher: EventPublisher,
 ) {
+  cancelled = false;
+  scraping = true;
   let chromiumPath: string;
 
   logger.log('Scraping financial accounts and fetching transactions');
 
-  if (scrapingConfig.chromiumPath && existsSync(scrapingConfig.chromiumPath)) {
-    logger.log('Using provided chromium path', scrapingConfig.chromiumPath);
-    chromiumPath = scrapingConfig.chromiumPath;
-  } else {
-    logger.log('Downloading chromium');
-    chromiumPath = await getChrome(userDataPath, (percent) => emitChromeDownload(eventPublisher, percent));
+  try {
+    if (scrapingConfig.chromiumPath && existsSync(scrapingConfig.chromiumPath)) {
+      logger.log('Using provided chromium path', scrapingConfig.chromiumPath);
+      chromiumPath = scrapingConfig.chromiumPath;
+    } else {
+      logger.log('Downloading chromium');
+      chromiumPath = await getChrome(userDataPath, (percent) => emitChromeDownload(eventPublisher, percent));
 
-    // Save the downloaded chromium path to config
-    try {
-      const currentConfig = await getConfig();
-      currentConfig.scraping.chromiumPath = chromiumPath;
-      await updateConfig(configFilePath, currentConfig);
-      logger.log('Saved new chromium path to config');
-    } catch (e) {
-      logger.error('Failed to save chromium path to config', e);
-    }
-  }
-
-  const limiter = new Bottleneck({
-    maxConcurrent: scrapingConfig.maxConcurrency,
-  });
-  const scrapePromises = scrapingConfig.accountsToScrape
-    .filter((accountToScrape) => accountToScrape.active !== false)
-    .map(async (accountToScrape) => ({
-      id: accountToScrape.id,
-      transactions: await limiter.schedule(() =>
-        fetchTransactions(
-          accountToScrape,
-          startDate,
-          scrapingConfig.showBrowser,
-          eventPublisher,
-          chromiumPath,
-          scrapingConfig.timeout,
-        ),
-      ),
-    }));
-
-  const promiseResults = await Promise.allSettled(scrapePromises);
-  const companyIdToTransactions = promiseResults.reduce(
-    (idToTrxAcc, scrapeRes) => {
-      if (scrapeRes.status === 'fulfilled') {
-        const { id, transactions } = scrapeRes.value;
-        idToTrxAcc[id] = transactions;
+      // Save the downloaded chromium path to config
+      try {
+        const currentConfig = await getConfig();
+        currentConfig.scraping.chromiumPath = chromiumPath;
+        await updateConfig(configFilePath, currentConfig);
+        logger.log('Saved new chromium path to config');
+      } catch (e) {
+        logger.error('Failed to save chromium path to config', e);
       }
-      return idToTrxAcc;
-    },
-    {} as Record<string, EnrichedTransaction[]>,
-  );
+    }
 
-  return companyIdToTransactions;
+    const currentLimiter = new Bottleneck({
+      maxConcurrent: scrapingConfig.maxConcurrency,
+    });
+    limiter = currentLimiter;
+    const scrapePromises = scrapingConfig.accountsToScrape
+      .filter((accountToScrape) => accountToScrape.active !== false)
+      .map(async (accountToScrape) => ({
+        id: accountToScrape.id,
+        transactions: await currentLimiter.schedule(() =>
+          fetchTransactions(
+            accountToScrape,
+            startDate,
+            scrapingConfig.showBrowser,
+            eventPublisher,
+            chromiumPath,
+            scrapingConfig.timeout,
+          ),
+        ),
+      }));
+
+    const promiseResults = await Promise.allSettled(scrapePromises);
+    const companyIdToTransactions = promiseResults.reduce(
+      (idToTrxAcc, scrapeRes) => {
+        if (scrapeRes.status === 'fulfilled') {
+          const { id, transactions } = scrapeRes.value;
+          idToTrxAcc[id] = transactions;
+        }
+        return idToTrxAcc;
+      },
+      {} as Record<string, EnrichedTransaction[]>,
+    );
+
+    return companyIdToTransactions;
+  } finally {
+    scraping = false;
+    limiter = null;
+  }
 }
 
 function buildImporterEvent(
@@ -137,6 +162,9 @@ async function fetchTransactions(
   timeout: number,
 ) {
   try {
+    if (cancelled) {
+      throw new Error('Scraping cancelled by user');
+    }
     await eventPublisher.emit(EventNames.IMPORTER_START, buildImporterEvent(account, { message: 'Importer start' }));
 
     const emitImporterProgressEvent = async (eventCompanyId: string, message: string) => {

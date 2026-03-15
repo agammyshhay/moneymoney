@@ -1,3 +1,4 @@
+import { getDataFolder, openItem } from '#preload';
 import { useState } from 'react';
 import { Container, Stack, Modal } from 'react-bootstrap';
 import NavBar from 'react-bootstrap/Navbar';
@@ -41,6 +42,14 @@ function TopBar() {
               text="דיווח על בעיה"
               icon={<i className="bi bi-exclamation-circle"></i>}
               isActive={show}
+            />
+            <NavButton
+              onClick={async () => {
+                const folder = await getDataFolder();
+                openItem(folder);
+              }}
+              text="תיקיית נתונים"
+              icon={<i className="bi bi-folder2-open"></i>}
             />
             <NavButton
               onClick={() => setShowSettings(true)}

@@ -5,11 +5,15 @@ import {
   type OutputVendor,
 } from '@/backend/commonTypes';
 import { mergeTransactions, sortByDate, unifyHash } from '@/backend/transactions/transactions';
+import { userDataPath } from '@/app-globals';
 import { promises as fs } from 'fs';
 import http from 'http';
 import https from 'https';
+import path from 'path';
 import logger from '/@/logging/logger';
 import { BASE44_DEFAULT_CONFIG } from '@/config/base44';
+
+const resolveFilePath = (fp: string) => (path.isAbsolute(fp) ? fp : path.resolve(userDataPath, fp));
 
 const parseTransactionsFile = async (filename: string) => {
   try {
@@ -69,7 +73,7 @@ const postJson = async (urlStr: string, payload: unknown, extraHeaders?: Record<
   });
 
 const exportTransactions: ExportTransactionsFunction = async ({ transactionsToCreate, outputVendorsConfig }) => {
-  const { filePath } = outputVendorsConfig.json!.options;
+  const filePath = resolveFilePath(outputVendorsConfig.json!.options.filePath);
   const savedTransactions = await parseTransactionsFile(filePath);
   const mergedTransactions = mergeTransactions(savedTransactions, transactionsToCreate);
   const sorted = sortByDate(mergedTransactions);
@@ -146,7 +150,7 @@ export const syncExistingJsonToBase44 = async (options: {
   base44ApiKey?: string;
   base44UserUuid?: string;
 }) => {
-  const transactions = await parseTransactionsFile(options.filePath);
+  const transactions = await parseTransactionsFile(resolveFilePath(options.filePath));
   const trimmedBase44Url = options.base44Url?.trim();
   const trimmedBase44ApiKey = options.base44ApiKey?.trim();
   const base44Url = trimmedBase44Url ? trimmedBase44Url : BASE44_DEFAULT_CONFIG.url;

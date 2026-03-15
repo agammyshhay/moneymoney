@@ -92,6 +92,7 @@ export class ConfigStore {
 
   chromeDownloadPercent = 0;
   nextAutomaticScrapeDate?: Date | null;
+  scrapeRunning = false;
 
   // [CUSTOM-SUMMARY-START]
   lastScrapeSummary: ScrapeSummary = {
@@ -187,8 +188,9 @@ export class ConfigStore {
   }
 
   get isScraping(): boolean {
-    return !!Array.from(this.accountScrapingData.values()).find(
-      (account) => account.status === AccountStatus.IN_PROGRESS,
+    return (
+      this.scrapeRunning ||
+      !!Array.from(this.accountScrapingData.values()).find((account) => account.status === AccountStatus.IN_PROGRESS)
     );
   }
 
@@ -214,6 +216,7 @@ export class ConfigStore {
     this.accountScrapingData = new Map();
     this.updateChromeDownloadPercent(0);
     this.nextAutomaticScrapeDate = null;
+    this.scrapeRunning = true;
   }
 
   // [CUSTOM-SINGLE-RUN-START]
@@ -294,11 +297,10 @@ export class ConfigStore {
           }
         });
       }
+      this.scrapeRunning = false;
       this.setShowSummaryModal(true);
       this.addSyncHistoryEntry();
-      if (eventName === 'EXPORT_PROCESS_END') {
-        this.config.scraping.lastScrapeDate = new Date().toISOString();
-      }
+      this.config.scraping.lastScrapeDate = new Date().toISOString();
     }
     // [CUSTOM-SUMMARY-END]
 

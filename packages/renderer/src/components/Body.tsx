@@ -1,4 +1,4 @@
-import { openExternal, scrape } from '#preload';
+import { cancelScrape, openExternal, scrape } from '#preload';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -206,14 +206,14 @@ const Body = () => {
           <Button
             variant="dark"
             size="lg"
-            onClick={cleanAndScrape}
-            disabled={configStore.isScraping}
+            onClick={configStore.isScraping ? () => cancelScrape() : cleanAndScrape}
             className={styles.runButton}
           >
             {configStore.isScraping ? (
               <div className={styles.runButtonSyncing}>
                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span>מסנכרן...</span>
+                <i className="bi bi-stop-circle"></i>
+                <span>עצור סנכרון</span>
               </div>
             ) : (
               <>

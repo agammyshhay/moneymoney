@@ -105,6 +105,10 @@ const exportTransactions: ExportTransactionsFunction = async ({ transactionsToCr
   };
 };
 
+// SECURITY: The caller-supplied user_uuid is trusted by the syncData function on Base44.
+// Server-side must validate that user_uuid matches the authenticated user.
+// TODO (Phase 4): Replace x-api-secret with per-user Bearer tokens so the server
+// extracts user identity from the token instead of trusting the payload.
 export const sendTransactionsToBase44 = async (
   transactions: EnrichedTransaction[],
   base44Url: string,

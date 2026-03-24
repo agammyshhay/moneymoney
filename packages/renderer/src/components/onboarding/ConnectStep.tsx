@@ -117,16 +117,15 @@ export default function ConnectStep({ onSkipStep }: ConnectStepProps) {
             'בדוק חיבור'
           )}
         </Button>
-        {testResult && (
-          testResult.ok ? (
+        {testResult &&
+          (testResult.ok ? (
             <span className={styles.testSuccess}>
               <i className={`bi bi-check-circle-fill ${styles.successCheckmark}`}></i>
               {testResult.message}
             </span>
           ) : (
             <span className={styles.testError}>{testResult.message}</span>
-          )
-        )}
+          ))}
       </div>
 
       <button type="button" className={styles.skipStepLink} onClick={onSkipStep}>

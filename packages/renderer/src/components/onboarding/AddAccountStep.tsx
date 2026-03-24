@@ -44,21 +44,21 @@ export default function AddAccountStep({ onAccountAdded }: AddAccountStepProps) 
               <div
                 key={i}
                 className={styles.confettiDot}
-                style={{
-                  backgroundColor: dot.color,
-                  '--tx': dot.tx,
-                  '--ty': dot.ty,
-                  animationDelay: dot.delay,
-                } as React.CSSProperties}
+                style={
+                  {
+                    backgroundColor: dot.color,
+                    '--tx': dot.tx,
+                    '--ty': dot.ty,
+                    animationDelay: dot.delay,
+                  } as React.CSSProperties
+                }
               />
             ))}
           </div>
 
           {/* Account count badge */}
           <span className={styles.countBadge}>
-            {addedAccounts.length === 1
-              ? 'חשבון 1 נוסף'
-              : `${addedAccounts.length} חשבונות נוספו`}
+            {addedAccounts.length === 1 ? 'חשבון 1 נוסף' : `${addedAccounts.length} חשבונות נוספו`}
           </span>
 
           <div className={styles.successText}>

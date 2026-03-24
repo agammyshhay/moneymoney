@@ -12,10 +12,10 @@ const bankLogos = Object.values(importerIcons);
 const marqueeLogos = [...bankLogos, ...bankLogos];
 
 const SLIDES = [
-  { img: ssOverview,       caption: 'סקירה כללית — הכנסות, הוצאות ומאזן חודשי' },
-  { img: ssStory,          caption: 'הסיפור של הכסף שלך — ניתוח חכם אישי' },
-  { img: ssCategories,     caption: 'הוצאות לפי קטגוריה — תרשים עוגה אינטראקטיבי' },
-  { img: ssSubscriptions,  caption: 'המנויים שלי — כל המנויים הקבועים במקום אחד' },
+  { img: ssOverview, caption: 'סקירה כללית — הכנסות, הוצאות ומאזן חודשי' },
+  { img: ssStory, caption: 'הסיפור של הכסף שלך — ניתוח חכם אישי' },
+  { img: ssCategories, caption: 'הוצאות לפי קטגוריה — תרשים עוגה אינטראקטיבי' },
+  { img: ssSubscriptions, caption: 'המנויים שלי — כל המנויים הקבועים במקום אחד' },
 ];
 
 const AUTO_ADVANCE_MS = 3500;
@@ -56,17 +56,9 @@ export default function WelcomeStep() {
   return (
     <div className={styles.container}>
       {/* Hero */}
-      <img
-        src={logoFishOnly}
-        alt="MoneyMoney"
-        className={`${styles.logo} ${visible ? styles.visible : ''}`}
-      />
-      <h2 className={`${styles.headline} ${visible ? styles.visible : ''}`}>
-        ברוכים הבאים ל-MoneyMoney!
-      </h2>
-      <p className={`${styles.subtitle} ${visible ? styles.visible : ''}`}>
-        כל הכסף שלך. במקום אחד. אוטומטית.
-      </p>
+      <img src={logoFishOnly} alt="MoneyMoney" className={`${styles.logo} ${visible ? styles.visible : ''}`} />
+      <h2 className={`${styles.headline} ${visible ? styles.visible : ''}`}>ברוכים הבאים ל-MoneyMoney!</h2>
+      <p className={`${styles.subtitle} ${visible ? styles.visible : ''}`}>כל הכסף שלך. במקום אחד. אוטומטית.</p>
 
       {/* Screenshot carousel in browser mockup */}
       <div className={`${styles.screenshotSection} ${visible ? styles.visible : ''}`}>

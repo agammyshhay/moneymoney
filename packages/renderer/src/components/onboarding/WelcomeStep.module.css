@@ -1,54 +1,319 @@
 /* [CUSTOM-ONBOARDING-START] */
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
+  gap: 1.25rem;
+}
+
+/* ── Hero area ── */
+.logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo.visible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .headline {
-  font-size: 1.75rem;
+  font-size: 1.65rem;
   font-weight: 700;
   color: #202124;
-  margin-bottom: 0.5rem;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.15s;
+}
+
+.headline.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .subtitle {
   font-size: 1rem;
   color: #5f6368;
-  margin-bottom: 2rem;
-}
-
-.features {
-  list-style: none;
-  padding: 0;
   margin: 0;
-  width: 100%;
-  max-width: 420px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.25s;
 }
 
-.feature {
+.subtitle.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Bank logos marquee ── */
+.marqueeSection {
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.35s;
+}
+
+.marqueeSection.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.marqueeContainer {
+  overflow: hidden;
+  mask-image: linear-gradient(to left, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, transparent 0%, black 8%, black 92%, transparent 100%);
+  padding: 8px 0;
+}
+
+.marqueeTrack {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.marqueeContainer:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.bankLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #f1f3f4;
+  background: white;
+  object-fit: contain;
+  padding: 4px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bankLogo:hover {
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.marqueeCaption {
+  font-size: 0.8rem;
+  color: #9aa0a6;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* ── Screenshot carousel ── */
+.screenshotSection {
+  width: 100%;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.4s;
+}
+
+.screenshotSection.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.browserMockup {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+.browserChrome {
+  background: #f8f9fa;
+  padding: 7px 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  margin-bottom: 12px;
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  color: #3c4043;
-  text-align: start;
-  transition: background-color 0.2s;
+  gap: 10px;
+  border-bottom: 1px solid #eeeeee;
 }
 
-.feature:hover {
-  background-color: #e8f0fe;
-}
-
-.featureIcon {
-  font-size: 1.4rem;
-  color: #1a73e8;
+.browserDots {
+  display: flex;
+  gap: 5px;
   flex-shrink: 0;
 }
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.dotRed    { background-color: #ea4335; }
+.dotYellow { background-color: #fbbc04; }
+.dotGreen  { background-color: #34a853; }
+
+.browserUrl {
+  flex: 1;
+  background: white;
+  border: 1px solid #e8eaed;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  color: #5f6368;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  direction: ltr;
+}
+
+/* Carousel viewport — images are pre-normalized to same size */
+.carouselViewport {
+  position: relative;
+  overflow: hidden;
+  background: white;
+}
+
+.carouselSlide {
+  display: none;
+}
+
+.carouselSlide.active {
+  display: block;
+  animation: slideFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.screenshotImg {
+  width: 100%;
+  display: block;
+}
+
+/* Side nav arrows — overlaid on left/right of the image */
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #3c4043;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+.carouselArrowRight {
+  right: 8px;
+}
+
+.carouselArrowLeft {
+  left: 8px;
+}
+
+.carouselArrow:hover {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  color: #1a73e8;
+}
+
+/* Caption + dots footer */
+.carouselFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 7px;
+  background: white;
+  border-top: 1px solid #f1f3f4;
+}
+
+.slideCaption {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #5f6368;
+  flex: 1;
+  text-align: end;
+}
+
+.carouselDots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.carouselDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #dadce0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.carouselDot.activeDot {
+  background-color: #1a73e8;
+  width: 18px;
+  border-radius: 3px;
+}
+
+/* ── Feature chips (compact) ── */
+.featureChips {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.6s;
+}
+
+.featureChips.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.chipBlue  { background-color: #e8f0fe; color: #1a73e8; border-color: #c5d8fb; }
+.chipGreen { background-color: #e6f4ea; color: #188038; border-color: #b7e0c0; }
+.chipAmber { background-color: #fef7e0; color: #b45309; border-color: #fde49a; }
+
 /* [CUSTOM-ONBOARDING-END] */

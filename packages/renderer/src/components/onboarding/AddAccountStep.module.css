@@ -18,24 +18,85 @@
   line-height: 1.5;
 }
 
+/* ── Tip card ── */
+.tipCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #e8f0fe;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #3c4043;
+  line-height: 1.5;
+}
+
+.tipIcon {
+  font-size: 1.1rem;
+  color: #1a73e8;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Importer wrapper ── */
 .importerWrapper {
   flex: 1;
   overflow-y: auto;
-  max-height: 340px;
+  max-height: 320px;
 }
 
-/* Success state after account added */
+/* ── Success state ── */
 .successState {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
   gap: 1rem;
+  position: relative;
+}
+
+.successIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .successIcon {
   font-size: 3rem;
   color: #34a853;
+  animation: successPop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes successPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Confetti dots ── */
+.confettiDot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: confettiPop 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes confettiPop {
+  0% { transform: translate(0, 0) scale(0); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
+}
+
+/* ── Account count badge ── */
+.countBadge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a73e8;
+  background-color: #e8f0fe;
+  padding: 4px 12px;
+  border-radius: 20px;
 }
 
 .successText {
@@ -58,7 +119,7 @@
   color: #34a853;
 }
 
-/* Info callout after success */
+/* ── Info callout ── */
 .infoCallout {
   display: flex;
   align-items: flex-start;
@@ -68,6 +129,12 @@
   padding: 1rem 1.25rem;
   margin-top: 1rem;
   max-width: 420px;
+  animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .infoIcon {
@@ -86,6 +153,7 @@
   line-height: 1.5;
 }
 
+/* ── Action buttons ── */
 .successActions {
   display: flex;
   gap: 12px;
@@ -123,11 +191,17 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25); }
+  50% { box-shadow: 0 4px 20px rgba(26, 115, 232, 0.45); }
 }
 
 .finishButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+  animation: none;
 }
 /* [CUSTOM-ONBOARDING-END] */

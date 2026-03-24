@@ -163,8 +163,8 @@ describe('USE_CASES.md — UC#6: Sync for returning user', () => {
       expect(screen.queryByText(/ברוכים הבאים/)).not.toBeInTheDocument();
     });
 
-    // Sync button should be present
-    expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+    // Sync button should be present (may already be in "running" state from auto-scrape)
+    expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
   });
 
   it('triggers auto-sync on load for returning user', async () => {
@@ -213,9 +213,9 @@ describe('USE_CASES.md — E5: No active accounts', () => {
 
     render(<App />);
 
-    // Sync button should be present (app is functional)
+    // Sync button should be present (may already be in "running" state from auto-scrape)
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
     });
   });
 });

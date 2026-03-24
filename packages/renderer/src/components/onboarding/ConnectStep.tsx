@@ -3,6 +3,7 @@ import { openExternal, testBase44Connection } from '#preload';
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useConfigStore } from '../../store/ConfigStore';
+import base44GuideImg from '../../assets/base44-connect-guide.png';
 import styles from './ConnectStep.module.css';
 
 interface ConnectStepProps {
@@ -45,28 +46,51 @@ export default function ConnectStep({ onSkipStep }: ConnectStepProps) {
         כדי שהנתונים יסונכרנו אוטומטית, צריך לחבר את האפליקציה לחשבון MoneyMoney שלך.
       </p>
 
-      <ol className={styles.instructions}>
-        <li className={styles.instruction}>
-          <span>היכנס לאפליקציית MoneyMoney באתר</span>
-          <Button
-            size="sm"
-            variant="outline-primary"
-            className={styles.openButton}
-            onClick={() => openExternal('https://moneym.base44.app/settings')}
-          >
-            <i className="bi bi-box-arrow-up-left"></i>
-            פתח את MoneyMoney
-          </Button>
-        </li>
-        <li className={styles.instruction}>
-          <span>העתק את קוד החיבור</span>
-        </li>
-        <li className={styles.instruction}>
-          <span>הדבק את הקוד כאן:</span>
-        </li>
-      </ol>
+      {/* Visual stepper */}
+      <div className={styles.stepper}>
+        <div className={styles.stepItem}>
+          <div className={styles.stepMarker}>
+            <div className={styles.stepCircle}>1</div>
+            <div className={styles.stepLine} />
+          </div>
+          <div className={styles.stepBody}>
+            <span>היכנס לאפליקציית MoneyMoney באתר</span>
+            <Button
+              size="sm"
+              variant="outline-primary"
+              className={styles.openButton}
+              onClick={() => openExternal('https://moneym.base44.app/settings')}
+            >
+              <i className="bi bi-box-arrow-up-left"></i>
+              פתח את MoneyMoney
+            </Button>
+          </div>
+        </div>
 
-      <Form.Group className={styles.inputGroup}>
+        <div className={styles.stepItem}>
+          <div className={styles.stepMarker}>
+            <div className={styles.stepCircle}>2</div>
+          </div>
+          <div className={styles.stepBody}>
+            <span>העתק את קוד החיבור מהמסך הזה:</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Screenshot in browser frame */}
+      <div className={styles.browserFrame}>
+        <div className={styles.browserBar}>
+          <div className={`${styles.browserDot} ${styles.browserDotRed}`} />
+          <div className={`${styles.browserDot} ${styles.browserDotYellow}`} />
+          <div className={`${styles.browserDot} ${styles.browserDotGreen}`} />
+        </div>
+        <img src={base44GuideImg} alt="מסך קוד החיבור באתר MoneyMoney" className={styles.guideImage} />
+      </div>
+
+      {/* Paste label + input */}
+      <div className={styles.pasteLabel}>הדבק את הקוד כאן:</div>
+      <div className={styles.inputWrapper}>
+        <i className={`bi bi-key ${styles.inputIcon}`}></i>
         <Form.Control
           type="password"
           className={styles.input}
@@ -74,7 +98,7 @@ export default function ConnectStep({ onSkipStep }: ConnectStepProps) {
           value={uuid}
           onChange={(e) => handleUuidChange(e.target.value)}
         />
-      </Form.Group>
+      </div>
 
       <div className={styles.testRow}>
         <Button
@@ -94,7 +118,14 @@ export default function ConnectStep({ onSkipStep }: ConnectStepProps) {
           )}
         </Button>
         {testResult && (
-          <span className={testResult.ok ? styles.testSuccess : styles.testError}>{testResult.message}</span>
+          testResult.ok ? (
+            <span className={styles.testSuccess}>
+              <i className={`bi bi-check-circle-fill ${styles.successCheckmark}`}></i>
+              {testResult.message}
+            </span>
+          ) : (
+            <span className={styles.testError}>{testResult.message}</span>
+          )
         )}
       </div>
 

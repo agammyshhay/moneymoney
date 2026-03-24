@@ -1,4 +1,10 @@
 /* [CUSTOM-ONBOARDING-START] */
+
+/* ── Modal container ── */
+.wizardModal :global(.modal-dialog) {
+  max-width: 720px;
+}
+
 .wizardModal :global(.modal-content) {
   border-radius: 16px;
   border: none;
@@ -6,49 +12,131 @@
   overflow: hidden;
 }
 
+/* ── Gradient accent bar ── */
+.gradientBar {
+  height: 6px;
+  background: linear-gradient(90deg, #1a73e8, #34a853, #1a73e8);
+  background-size: 200% 100%;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Body ── */
 .wizardBody {
-  padding: 2rem 2.5rem 1.5rem;
-  min-height: 420px;
+  padding: 1.5rem 2.5rem 1rem;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
 }
 
-.stepIndicator {
+/* ── Segmented progress bar ── */
+.progressBar {
   display: flex;
-  justify-content: center;
   gap: 8px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #dadce0;
-  transition: all 0.3s ease;
+.progressSegment {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
-.dotActive {
-  background-color: #1a73e8;
-  transform: scale(1.2);
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background-color: #e8eaed;
+  overflow: hidden;
+  position: relative;
 }
 
-.dotCompleted {
+.progressFill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressFillActive {
+  width: 100%;
+  background: linear-gradient(90deg, #1a73e8, #4a9af5);
+  animation: progressPulse 2s ease-in-out infinite;
+}
+
+.progressFillCompleted {
+  width: 100%;
   background-color: #34a853;
 }
 
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.progressLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #9aa0a6;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.progressLabelActive {
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.progressLabelCompleted {
+  color: #34a853;
+}
+
+/* ── Step content with transitions ── */
 .stepContent {
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
+.stepTransition {
+  animation: stepFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── Footer ── */
 .wizardFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2.5rem 1.5rem;
   border-top: 1px solid #f1f3f4;
+}
+
+.footerStart {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .skipLink {
@@ -66,6 +154,51 @@
   text-decoration: underline;
 }
 
+.stepCounter {
+  font-size: 0.8rem;
+  color: #9aa0a6;
+  font-weight: 500;
+}
+
+.buttonsRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ── Back button ── */
+.backButton {
+  background: none;
+  border: none;
+  border-radius: 20px;
+  color: #9aa0a6;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+}
+
+.backButton:hover {
+  background-color: #f1f3f4;
+  color: #3c4043;
+}
+
+.backButton:hover .backArrow {
+  transform: translateX(3px);
+}
+
+.backArrow {
+  font-size: 0.8rem;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+
+/* ── Primary button ── */
 .primaryButton {
   background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
   border: none;
@@ -76,6 +209,9 @@
   font-size: 1rem;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(26, 115, 232, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .primaryButton:hover:not(:disabled) {
@@ -89,6 +225,17 @@
   cursor: not-allowed;
 }
 
+.buttonArrow {
+  display: inline-block;
+  animation: arrowBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+
+/* ── Secondary button ── */
 .secondaryButton {
   background-color: white;
   border: 1px solid #dadce0;
@@ -106,9 +253,4 @@
   border-color: #1a73e8;
 }
 
-.buttonsRow {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
 /* [CUSTOM-ONBOARDING-END] */

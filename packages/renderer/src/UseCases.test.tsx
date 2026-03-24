@@ -238,7 +238,7 @@ describe('UC#6 — Run full sync', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
       expect(screen.getByText('בנקים וכרטיסי אשראי')).toBeInTheDocument();
     });
   });
@@ -314,7 +314,7 @@ describe('UC#8 — Sync summary modal', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
     });
 
     // Simulate scrape completing with no errors
@@ -337,7 +337,7 @@ describe('UC#8 — Sync summary modal', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
     });
 
     runInAction(() => {
@@ -553,7 +553,7 @@ describe('UC#24 — Chrome download progress', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
     });
 
     runInAction(() => {
@@ -570,7 +570,7 @@ describe('UC#24 — Chrome download progress', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('הפעל סנכרון')).toBeInTheDocument();
+      expect(screen.getByText(/הפעל סנכרון|עצור סנכרון/)).toBeInTheDocument();
     });
 
     // percent stays 0 (default) → no progress bar

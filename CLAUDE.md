@@ -8,6 +8,11 @@ MoneyMoney is an Electron desktop app that automatically scrapes transactions fr
 
 ## Commands
 
+Node.js and yarn are installed at `C:\projects\wallet\node`. Add to PATH before running commands:
+```bash
+export PATH="/c/projects/wallet/node:$PATH"
+```
+
 ```bash
 # Install dependencies (must use yarn, not npm)
 yarn

@@ -116,7 +116,7 @@ export class ConfigStore {
         showBrowser: false,
         accountsToScrape: [],
         timeout: 72000,
-        maxConcurrency: 6,
+        maxConcurrency: 1,
       },
       outputVendors: {
         json: {

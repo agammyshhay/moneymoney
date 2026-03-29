@@ -31,6 +31,31 @@ function GeneralSettings() {
             <Base44Settings />
             {/* [CUSTOM-BASE44-END] */}
 
+            <div className={styles.scrapingSection}>
+              <h3 className={styles.scrapingHeader}>
+                <i className="bi bi-speedometer2 ms-1"></i>
+                מהירות שליפה
+              </h3>
+              <p className={styles.scrapingDescription}>
+                כמה חשבונות בנק ייקראו בו-זמנית. שליפה של חשבון אחד בכל פעם יציבה יותר ומתאימה לרוב המשתמשים.
+              </p>
+              <Form.Group>
+                <Form.Label className={styles.scrapingLabel}>קצב שליפת חשבונות</Form.Label>
+                <Form.Select
+                  className={styles.scrapingSelect}
+                  value={configStore.config?.scraping?.maxConcurrency ?? 1}
+                  onChange={(e) => configStore.setMaxConcurrency(Number(e.target.value))}
+                >
+                  <option value={1}>אחד אחרי השני (מומלץ)</option>
+                  <option value={2}>שניים במקביל</option>
+                  <option value={3}>שלושה במקביל</option>
+                </Form.Select>
+                <Form.Text className={styles.scrapingHint}>
+                  ערך גבוה יותר מזרז את התהליך, אך עלול לגרום לתקלות במחשבים עם פחות זיכרון.
+                </Form.Text>
+              </Form.Group>
+            </div>
+
             {/* [CUSTOM-STARTUP-START] */}
             <Form.Group className="mt-3">
               <Form.Check

@@ -11,7 +11,7 @@
   "homepage": "https://github.com/agammyshhay/moneymoney#README.md",
   "license": "MIT",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
   "main": "packages/main/dist_temp/index.js",
   "scripts": {

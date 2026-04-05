@@ -59,7 +59,7 @@ export default function ConnectStep({ onSkipStep }: ConnectStepProps) {
               size="sm"
               variant="outline-primary"
               className={styles.openButton}
-              onClick={() => openExternal('https://moneym.base44.app/settings')}
+              onClick={() => openExternal('https://moneym.base44.app/desktop-connect-code')}
             >
               <i className="bi bi-box-arrow-up-left"></i>
               פתח את MoneyMoney

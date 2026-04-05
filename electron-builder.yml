@@ -3,7 +3,7 @@ directories:
   buildResources: buildResources
 
 productName: MoneyMoney
-artifactName: '${productName} Setup ${version}.${ext}'
+artifactName: '${productName}-Setup.${ext}'
 
 files:
   - packages/**/dist/**

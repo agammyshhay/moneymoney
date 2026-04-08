@@ -122,6 +122,32 @@ export async function syncJsonToBase44(): Promise<{ ok: boolean; count?: number;
   return electron.ipcRenderer.invoke('syncJsonToBase44');
 }
 
+// [CUSTOM-BASE44-START]
+export async function hasBase44Token(): Promise<boolean> {
+  return electron.ipcRenderer.invoke('hasBase44Token');
+}
+
+export async function clearBase44Token(): Promise<{ ok: boolean }> {
+  return electron.ipcRenderer.invoke('clearBase44Token');
+}
+
+export function onBase44TokenReceived(callback: () => void): () => void {
+  const handler = () => callback();
+  electron.ipcRenderer.on('base44-token-received', handler);
+  return () => {
+    electron.ipcRenderer.removeListener('base44-token-received', handler);
+  };
+}
+
+export function onBase44TokenExpired(callback: () => void): () => void {
+  const handler = () => callback();
+  electron.ipcRenderer.on('base44-token-expired', handler);
+  return () => {
+    electron.ipcRenderer.removeListener('base44-token-expired', handler);
+  };
+}
+// [CUSTOM-BASE44-END]
+
 export async function cancelScrape(): Promise<void> {
   return electron.ipcRenderer.invoke('cancelScrape');
 }

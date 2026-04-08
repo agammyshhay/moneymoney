@@ -18,3 +18,7 @@ export async function saveIntoAccount(account: string, password: string) {
 export async function getFromAccount(account: string) {
   return keytar.getPassword(serviceName, account);
 }
+
+export async function deleteFromAccount(account: string) {
+  return keytar.deletePassword(serviceName, account);
+}

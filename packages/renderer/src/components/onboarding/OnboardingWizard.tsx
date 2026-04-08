@@ -57,9 +57,13 @@ function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
     }
   };
 
+  // [CUSTOM-BASE44-START]
+  const [hasToken, setHasToken] = useState(false);
+  // [CUSTOM-BASE44-END]
+
   const handleConnectNext = () => {
     const uuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
-    if (uuid.trim()) {
+    if (uuid.trim() || hasToken) {
       goNext();
     }
   };
@@ -73,7 +77,7 @@ function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
   };
 
   const uuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
-  const canAdvanceConnect = !!uuid.trim();
+  const canAdvanceConnect = !!uuid.trim() || hasToken;
 
   return (
     <Modal show={show} size="lg" centered backdrop="static" keyboard={false} dialogClassName={styles.wizardModal}>
@@ -115,7 +119,9 @@ function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
         <div className={styles.stepContent}>
           <div key={transitionKey} className={styles.stepTransition}>
             {currentStep === 'welcome' && <WelcomeStep />}
-            {currentStep === 'connect' && <ConnectStep onSkipStep={handleConnectSkipStep} />}
+            {currentStep === 'connect' && (
+              <ConnectStep onSkipStep={handleConnectSkipStep} onConnected={() => setHasToken(true)} />
+            )}
             {currentStep === 'addAccount' && <AddAccountStep onAccountAdded={handleAccountAdded} />}
           </div>
         </div>

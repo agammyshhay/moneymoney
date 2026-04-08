@@ -5,6 +5,11 @@ directories:
 productName: MoneyMoney
 artifactName: '${productName}-Setup.${ext}'
 
+protocols:
+  - name: MoneyMoney
+    schemes:
+      - moneymoney
+
 files:
   - packages/**/dist/**
   - packages/main/dist_temp/**

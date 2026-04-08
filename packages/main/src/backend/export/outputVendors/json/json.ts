@@ -12,6 +12,21 @@ import https from 'https';
 import path from 'path';
 import logger from '/@/logging/logger';
 import { BASE44_DEFAULT_CONFIG } from '@/config/base44';
+// [CUSTOM-BASE44-START]
+import { getBase44Token, clearBase44Token } from '@/backend/auth/base44Token';
+import { BrowserWindow } from 'electron';
+// [CUSTOM-BASE44-END]
+
+// [CUSTOM-BASE44-START]
+export class Base44RequestError extends Error {
+  statusCode: number;
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.name = 'Base44RequestError';
+    this.statusCode = statusCode;
+  }
+}
+// [CUSTOM-BASE44-END]
 
 const resolveFilePath = (fp: string) => (path.isAbsolute(fp) ? fp : path.resolve(userDataPath, fp));
 
@@ -59,7 +74,12 @@ const postJson = async (urlStr: string, payload: unknown, extraHeaders?: Record<
             if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
               resolve();
             } else {
-              reject(new Error(`BASE44 request failed (${res.statusCode}): ${responseBody}`));
+              reject(
+                new Base44RequestError(
+                  res.statusCode ?? 0,
+                  `BASE44 request failed (${res.statusCode}): ${responseBody}`,
+                ),
+              );
             }
           });
         },
@@ -86,15 +106,13 @@ const exportTransactions: ExportTransactionsFunction = async ({ transactionsToCr
   const base44ApiKey = trimmedApiKey || BASE44_DEFAULT_CONFIG.apiKey;
   const base44UserUuid = outputVendorsConfig.json!.options.base44UserUuid;
 
-  if (base44Url && base44ApiKey && base44UserUuid) {
-    try {
-      await sendTransactionsToBase44(sorted, base44Url, base44ApiKey, base44UserUuid);
-    } catch (e) {
-      // Error is logged in sendTransactionsToBase44
-    }
-  } else {
-    logger.info('BASE44 URL or User UUID not configured. Skipping sending updated JSON');
+  // [CUSTOM-BASE44-START]
+  try {
+    await syncWithBearerOrFallback(sorted, base44Url, base44ApiKey, base44UserUuid);
+  } catch (e) {
+    logger.error('Failed to sync to BASE44', e);
   }
+  // [CUSTOM-BASE44-END]
 
   const savedHashes = new Set(savedTransactions.map((t) => unifyHash(t.hash)));
   const newTransactions = sorted.filter((t) => !savedHashes.has(unifyHash(t.hash)));
@@ -148,6 +166,78 @@ export const sendTransactionsToBase44 = async (
   }
 };
 
+// [CUSTOM-BASE44-START]
+function notifyTokenExpired() {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    win.webContents.send('base44-token-expired');
+  }
+}
+
+export const sendTransactionsToBase44WithBearer = async (
+  transactions: EnrichedTransaction[],
+  base44Url: string,
+  token: string,
+) => {
+  logger.info(`Sending ${transactions.length} transactions to BASE44 (Bearer auth)`);
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    'User-Agent': 'MoneyMoney/1.0.0',
+    Accept: 'application/json',
+  };
+  const payload = {
+    transactions: transactions.map((t) => ({
+      hash: t.hash,
+      date: t.date,
+      description: t.description,
+      chargedAmount: t.chargedAmount,
+      sum: t.chargedAmount,
+      chargedCurrency: t.originalCurrency || 'ILS',
+      processedDate: t.processedDate,
+      memo: t.memo,
+      status: t.status,
+      category: t.category,
+      accountNumber: t.accountNumber ? t.accountNumber.slice(-4) : null,
+      type: t.type,
+    })),
+  };
+
+  await postJson(base44Url, payload, headers);
+  logger.info('Successfully sent transactions to BASE44 (Bearer auth)');
+};
+
+async function syncWithBearerOrFallback(
+  transactions: EnrichedTransaction[],
+  base44Url: string,
+  base44ApiKey: string,
+  base44UserUuid: string | undefined,
+): Promise<void> {
+  const bearerToken = await getBase44Token();
+  if (bearerToken) {
+    try {
+      await sendTransactionsToBase44WithBearer(transactions, base44Url, bearerToken);
+      return;
+    } catch (e) {
+      if (e instanceof Base44RequestError && e.statusCode === 401) {
+        logger.warn('Bearer token expired, clearing token');
+        await clearBase44Token();
+        notifyTokenExpired();
+        // Fall through to legacy method
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  // Legacy fallback
+  if (base44ApiKey && base44UserUuid) {
+    await sendTransactionsToBase44(transactions, base44Url, base44ApiKey, base44UserUuid);
+  } else if (!bearerToken) {
+    logger.info('No Bearer token or legacy credentials configured. Skipping BASE44 sync.');
+  }
+}
+// [CUSTOM-BASE44-END]
+
 export const syncExistingJsonToBase44 = async (options: {
   filePath: string;
   base44Url?: string;
@@ -160,6 +250,25 @@ export const syncExistingJsonToBase44 = async (options: {
   const base44Url = trimmedBase44Url ? trimmedBase44Url : BASE44_DEFAULT_CONFIG.url;
   const base44ApiKey = trimmedBase44ApiKey ? trimmedBase44ApiKey : BASE44_DEFAULT_CONFIG.apiKey;
   const base44UserUuid = options.base44UserUuid;
+
+  // [CUSTOM-BASE44-START]
+  const bearerToken = await getBase44Token();
+  if (bearerToken) {
+    try {
+      await sendTransactionsToBase44WithBearer(transactions, base44Url, bearerToken);
+      return transactions.length;
+    } catch (e) {
+      if (e instanceof Base44RequestError && e.statusCode === 401) {
+        logger.warn('Bearer token expired during manual sync, clearing token');
+        await clearBase44Token();
+        notifyTokenExpired();
+        // Fall through to legacy method
+      } else {
+        throw e;
+      }
+    }
+  }
+  // [CUSTOM-BASE44-END]
 
   if (base44Url && base44ApiKey && base44UserUuid) {
     await sendTransactionsToBase44(transactions, base44Url, base44ApiKey, base44UserUuid);

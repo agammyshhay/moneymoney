@@ -27,7 +27,10 @@ const ALLOWED_ORIGINS_AND_PERMISSIONS = new Map<string, Set<Permission>>(
  *   href="https://github.com/"
  * >
  */
-const ALLOWED_EXTERNAL_ORIGINS = new Set<`https://${string}`>(['https://github.com']);
+const ALLOWED_EXTERNAL_ORIGINS = new Set<`https://${string}`>([
+  'https://github.com',
+  'https://moneym.base44.app', // [CUSTOM-BASE44]
+]);
 
 app.on('web-contents-created', (_, contents) => {
   /**

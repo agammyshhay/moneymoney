@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { platform } from 'node:process';
 import { registerHandlers } from './handlers';
 import './security-restrictions';
@@ -11,6 +11,40 @@ import { migrateOldConfig } from '@/backend/configManager/migration';
 // [CUSTOM-UPDATE-START]
 import { initAutoUpdate } from './handlers/updater';
 // [CUSTOM-UPDATE-END]
+// [CUSTOM-BASE44-START]
+import { saveBase44Token } from '@/backend/auth/base44Token';
+import logger from '/@/logging/logger';
+// [CUSTOM-BASE44-END]
+
+// [CUSTOM-BASE44-START]
+// Deep link: pending URL received before the window is ready
+let pendingDeepLinkUrl: string | null = null;
+
+async function handleDeepLink(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'auth') {
+      const token = parsed.searchParams.get('token');
+      if (token) {
+        await saveBase44Token(token);
+        logger.info('Bearer token received via deep link');
+        const win = BrowserWindow.getAllWindows()[0];
+        if (win) {
+          win.webContents.send('base44-token-received');
+        }
+      }
+    }
+  } catch (e) {
+    logger.error('Failed to handle deep link', e);
+  }
+}
+
+// Handle deep link on cold start (app launched via moneymoney:// URL while not running)
+const deepLinkArg = process.argv.find((arg) => arg.startsWith('moneymoney://'));
+if (deepLinkArg) {
+  pendingDeepLinkUrl = deepLinkArg;
+}
+// [CUSTOM-BASE44-END]
 
 /**
  * Prevent electron from running multiple instances.
@@ -20,7 +54,26 @@ if (!isSingleInstance) {
   app.quit();
   process.exit(0);
 }
-app.on('second-instance', () => restoreOrCreateWindow(true));
+
+// [CUSTOM-BASE44-START]
+// Register protocol handler for moneymoney:// deep links AFTER the single-instance
+// lock, so a second instance (launched from a deep link with CWD=system32) never
+// overwrites the registry with a wrong path.
+if (import.meta.env.DEV) {
+  app.setAsDefaultProtocolClient('moneymoney', process.execPath, [app.getAppPath()]);
+} else {
+  app.setAsDefaultProtocolClient('moneymoney');
+}
+// [CUSTOM-BASE44-END]
+app.on('second-instance', (_event, argv) => {
+  // [CUSTOM-BASE44-START]
+  const deepLinkUrl = argv.find((arg) => arg.startsWith('moneymoney://'));
+  if (deepLinkUrl) {
+    handleDeepLink(deepLinkUrl);
+  }
+  // [CUSTOM-BASE44-END]
+  restoreOrCreateWindow(true);
+});
 
 /**
  * Disable Hardware Acceleration to save more system resources.
@@ -68,6 +121,15 @@ app
     console.log('Restoring window, hidden:', isHidden);
     return restoreOrCreateWindow(!isHidden);
   })
+  // [CUSTOM-BASE44-START]
+  .then(async () => {
+    // Process deep link that arrived during cold start
+    if (pendingDeepLinkUrl) {
+      await handleDeepLink(pendingDeepLinkUrl);
+      pendingDeepLinkUrl = null;
+    }
+  })
+  // [CUSTOM-BASE44-END]
   .then(async () => {
     // [CUSTOM-STARTUP-START]
     // Set the app to open at login (Windows only)

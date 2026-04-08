@@ -5,7 +5,10 @@ import path from 'path';
 export const App: Electron.App = electron.app;
 
 if (import.meta.env.MODE !== 'production') {
-  const localUserData = path.resolve('userData');
+  // Use app.getAppPath() for absolute resolution — path.resolve('userData')
+  // would resolve relative to CWD, which is C:\WINDOWS\system32 when launched
+  // via protocol handler (deep link).
+  const localUserData = path.resolve(App.getAppPath(), 'userData');
   mkdirSync(localUserData, { recursive: true });
   App.setPath('userData', localUserData);
 }

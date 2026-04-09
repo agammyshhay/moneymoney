@@ -9,7 +9,7 @@ interface Tip {
   text: string;
   icon: string;
   iconColor: string;
-  condition?: 'hasErrors' | 'noBase44Uuid' | 'isScraping';
+  condition?: 'hasErrors' | 'notConnected' | 'isScraping';
 }
 
 const contextualTips: Tip[] = [
@@ -25,7 +25,7 @@ const contextualTips: Tip[] = [
     text: 'חבר ל-MoneyMoney באתר כדי לראות את כל הנתונים במקום אחד',
     icon: 'bi-link-45deg',
     iconColor: '#1a73e8',
-    condition: 'noBase44Uuid',
+    condition: 'notConnected',
   },
   {
     id: 'scraping',
@@ -211,7 +211,7 @@ const SidebarTips = () => {
   const getActiveContextualTips = useCallback((): Tip[] => {
     return contextualTips.filter((tip) => {
       if (tip.condition === 'hasErrors') return configStore.lastScrapeSummary.errors.length > 0;
-      if (tip.condition === 'noBase44Uuid') return !configStore.config?.outputVendors?.json?.options?.base44UserUuid;
+      if (tip.condition === 'notConnected') return !configStore.hasBearerToken;
       if (tip.condition === 'isScraping') return configStore.isScraping;
       return false;
     });

@@ -1,11 +1,7 @@
 // [CUSTOM-ONBOARDING-START]
-import { openExternal, testBase44Connection, hasBase44Token, onBase44TokenReceived } from '#preload';
+import { openExternal, hasBase44Token, onBase44TokenReceived, getBase44ConnectUrl } from '#preload';
 import { useState, useEffect, useCallback } from 'react';
-import { Button, Form, Collapse } from 'react-bootstrap';
-import { useConfigStore } from '../../store/ConfigStore';
 import styles from './ConnectStep.module.css';
-
-const CONNECT_URL = 'https://moneym.base44.app/desktop-connect-code';
 
 interface ConnectStepProps {
   onSkipStep: () => void;
@@ -13,14 +9,9 @@ interface ConnectStepProps {
 }
 
 export default function ConnectStep({ onSkipStep, onConnected }: ConnectStepProps) {
-  const configStore = useConfigStore();
-  const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [hasToken, setHasToken] = useState(false);
-  const [showManualConnect, setShowManualConnect] = useState(false);
   const [waitingForToken, setWaitingForToken] = useState(false);
-
-  const uuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
 
   const checkToken = useCallback(async () => {
     const result = await hasBase44Token();
@@ -46,31 +37,10 @@ export default function ConnectStep({ onSkipStep, onConnected }: ConnectStepProp
     return unsub;
   }, [onConnected]);
 
-  const handleUuidChange = (value: string) => {
-    configStore.setBase44UserUuid(value);
-    setTestResult(null);
-  };
-
-  const handleTestConnection = async () => {
-    setIsTesting(true);
-    setTestResult(null);
-    try {
-      const res = await testBase44Connection();
-      if (res.ok) {
-        setTestResult({ ok: true, message: 'החיבור הצליח!' });
-      } else {
-        setTestResult({ ok: false, message: `החיבור נכשל: ${res.error ?? `סטטוס ${res.status}`}` });
-      }
-    } catch (e) {
-      setTestResult({ ok: false, message: `שגיאת בדיקה: ${(e as Error).message}` });
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  const handleConnect = () => {
+  const handleConnect = async () => {
     setWaitingForToken(true);
-    openExternal(CONNECT_URL);
+    const url = await getBase44ConnectUrl();
+    openExternal(url);
   };
 
   // Connected via Bearer token
@@ -116,47 +86,6 @@ export default function ConnectStep({ onSkipStep, onConnected }: ConnectStepProp
           {testResult.message}
         </div>
       )}
-
-      {/* Manual fallback (collapsible) */}
-      <div className={styles.manualSection}>
-        <button type="button" className={styles.manualToggle} onClick={() => setShowManualConnect(!showManualConnect)}>
-          חיבור ידני באמצעות קוד
-          <i className={`bi bi-chevron-${showManualConnect ? 'up' : 'down'} ${styles.chevronIcon}`} />
-        </button>
-        <Collapse in={showManualConnect}>
-          <div className={styles.manualContent}>
-            <Form.Group className={styles.inputGroup}>
-              <Form.Label className={styles.label}>קוד חיבור</Form.Label>
-              <div className={styles.inputWrapper}>
-                <Form.Control
-                  type="password"
-                  className={styles.input}
-                  placeholder="הדבק כאן את הקוד מאזור ההגדרות באתר"
-                  value={uuid}
-                  onChange={(e) => handleUuidChange(e.target.value)}
-                />
-              </div>
-            </Form.Group>
-
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={handleTestConnection}
-              disabled={isTesting || !uuid.trim()}
-              className={styles.testButton}
-            >
-              {isTesting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  &nbsp;בודק...
-                </>
-              ) : (
-                'בדוק חיבור'
-              )}
-            </Button>
-          </div>
-        </Collapse>
-      </div>
 
       <button type="button" className={styles.skipStepLink} onClick={onSkipStep}>
         אגדיר אחר כך

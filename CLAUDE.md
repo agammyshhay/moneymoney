@@ -84,15 +84,16 @@ The `EXPORTER_END` event (from `BudgetTrackingEventEmitter`) carries an `Exporte
 
 ### Base44 / MoneyMoney Integration
 
-Companion web app integration that pushes scraped transactions to MoneyMoney (built on the Base44 platform). Not a standard output vendor — it syncs the JSON export output separately.
+Companion web app integration that pushes scraped transactions to MoneyMoney (built on the Base44 platform). Not a standard output vendor — it syncs the JSON export output separately. Uses **Bearer token authentication** exclusively (per-user tokens stored in OS keychain via `keytar`).
 
-- `packages/main/src/config/base44.ts` — Default API URL and shared API key (hardcoded; app-level secret, not per-user)
-- `packages/main/src/backend/export/outputVendors/json/json.ts` — `syncExistingJsonToBase44()` reads JSON export, posts transactions to Base44 API
-- `packages/main/src/handlers/index.ts` — IPC handlers: `testBase44Connection`, `syncJsonToBase44`
-- `packages/renderer/src/components/Base44Settings.tsx` — UI for entering `base44UserUuid` and triggering sync/test
-- Config fields (in JSON vendor options): `base44Url`, `base44ApiKey`, `base44UserUuid`
+- `packages/main/src/config/base44.ts` — Default API URL (`https://moneym.base44.app/api/functions/syncData`)
+- `packages/main/src/backend/auth/base44Token.ts` — Token storage/retrieval (keytar), nonce generation for CSRF protection
+- `packages/main/src/backend/export/outputVendors/json/json.ts` — `syncExistingJsonToBase44()` reads JSON export, posts transactions to Base44 API with Bearer auth
+- `packages/main/src/handlers/index.ts` — IPC handlers: `testBase44Connection`, `syncJsonToBase44`, `hasBase44Token`, `clearBase44Token`, `getBase44ConnectUrl`
+- `packages/renderer/src/components/Base44Settings.tsx` — UI for connect/disconnect/sync/test
+- `packages/main/src/index.ts` — Deep link handler (`moneymoney://auth?token=...&state=...`)
 - Marker: `[CUSTOM-BASE44-START]` / `[CUSTOM-BASE44-END]`
-- **User flow:** User only needs to enter their `base44UserUuid` (MoneyMoney connection code). The `base44Url` and `base44ApiKey` have hardcoded shared defaults in `base44.ts` — they're only overridable for development/testing. When the JSON vendor is active and `base44UserUuid` is set, every scraping run automatically pushes transactions to Base44 after writing the JSON file.
+- **User flow:** User clicks "Connect" → browser opens Base44 login → after auth, deep link sends Bearer token back to the app → token stored in OS keychain. Every scraping run automatically pushes transactions to Base44 using the stored Bearer token. No shared API keys or manual UUID entry.
 
 ## Build System
 

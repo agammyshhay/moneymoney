@@ -1,4 +1,4 @@
-import { cancelScrape, openExternal, scrape } from '#preload';
+import { cancelScrape, openExternal, scrape, getBase44ConnectUrl } from '#preload';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -184,6 +184,29 @@ const Body = () => {
           {/* [CUSTOM-SIDEBAR-TIPS-START] */}
           <SidebarTips />
           {/* [CUSTOM-SIDEBAR-TIPS-END] */}
+          {/* [CUSTOM-BASE44-START] */}
+          {!configStore.hasBearerToken && (
+            <div className={styles.connectBanner}>
+              <div className={styles.connectBannerIcon}>
+                <i className="bi bi-link-45deg" style={{ color: '#f9a825', fontSize: '1.15rem' }} />
+              </div>
+              <div className={styles.connectBannerContent}>
+                <span className={styles.connectBannerTitle}>לא מחובר ל-MoneyMoney</span>
+                <span className={styles.connectBannerSubtitle}>התנועות לא מסונכרנות לאתר</span>
+              </div>
+              <button
+                type="button"
+                className={styles.connectBannerButton}
+                onClick={async () => {
+                  const url = await getBase44ConnectUrl();
+                  openExternal(url);
+                }}
+              >
+                חבר עכשיו
+              </button>
+            </div>
+          )}
+          {/* [CUSTOM-BASE44-END] */}
           <Stack direction="horizontal" className={styles.customGap}>
             <AccountsContainer
               title="בנקים וכרטיסי אשראי"

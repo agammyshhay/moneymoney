@@ -2,7 +2,6 @@
 import { observer } from 'mobx-react-lite';
 import { useState, useRef } from 'react';
 import { Modal } from 'react-bootstrap';
-import { useConfigStore } from '../../store/ConfigStore';
 import WelcomeStep from './WelcomeStep';
 import ConnectStep from './ConnectStep';
 import AddAccountStep from './AddAccountStep';
@@ -24,7 +23,6 @@ interface OnboardingWizardProps {
 }
 
 function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
-  const configStore = useConfigStore();
   const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
   const [transitionKey, setTransitionKey] = useState(0);
   const animatingRef = useRef(false);
@@ -62,8 +60,7 @@ function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
   // [CUSTOM-BASE44-END]
 
   const handleConnectNext = () => {
-    const uuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
-    if (uuid.trim() || hasToken) {
+    if (hasToken) {
       goNext();
     }
   };
@@ -76,8 +73,7 @@ function OnboardingWizard({ show, onComplete, onSkip }: OnboardingWizardProps) {
     onComplete();
   };
 
-  const uuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
-  const canAdvanceConnect = !!uuid.trim() || hasToken;
+  const canAdvanceConnect = hasToken;
 
   return (
     <Modal show={show} size="lg" centered backdrop="static" keyboard={false} dialogClassName={styles.wizardModal}>

@@ -15,7 +15,6 @@ import { getAllSpreadsheets } from '@/backend/export/outputVendors/googleSheets/
 import { getYnabAccountData } from '@/manual/setupHelpers';
 import {
   sendTransactionsToBase44,
-  sendTransactionsToBase44WithBearer,
   syncExistingJsonToBase44,
   Base44RequestError,
 } from '@/backend/export/outputVendors/json/json';
@@ -76,40 +75,22 @@ const functions: Record<string, Listener> = {
     createSpreadsheet(spreadsheetTitle, credentials),
   testBase44Connection: async () => {
     try {
-      const config = await getConfig();
-      const jsonOptions = config.outputVendors.json?.options;
-      const base44Url = (jsonOptions?.base44Url || BASE44_DEFAULT_CONFIG.url).trim();
-
       // [CUSTOM-BASE44-START]
-      // Try Bearer token first
       const bearerToken = await getBase44Token();
-      if (bearerToken) {
-        try {
-          await sendTransactionsToBase44WithBearer([], base44Url, bearerToken);
-          return { ok: true, status: 200 };
-        } catch (e) {
-          if (e instanceof Base44RequestError && e.statusCode === 401) {
-            await clearBase44TokenFn();
-            return { ok: false, status: 401, error: 'הטוקן פג תוקף, יש להתחבר מחדש' };
-          }
-          return { ok: false, status: 0, error: (e as Error).message };
+      if (!bearerToken) {
+        return { ok: false, status: 0, error: 'לא מחובר ל-MoneyMoney. יש להתחבר.' };
+      }
+      try {
+        await sendTransactionsToBase44([], BASE44_DEFAULT_CONFIG.url, bearerToken);
+        return { ok: true, status: 200 };
+      } catch (e) {
+        if (e instanceof Base44RequestError && e.statusCode === 401) {
+          await clearBase44TokenFn();
+          return { ok: false, status: 401, error: 'הטוקן פג תוקף, יש להתחבר מחדש' };
         }
+        return { ok: false, status: 0, error: (e as Error).message };
       }
       // [CUSTOM-BASE44-END]
-
-      // Legacy fallback
-      const base44ApiKey = (jsonOptions?.base44ApiKey || BASE44_DEFAULT_CONFIG.apiKey).trim();
-      const base44UserUuid = jsonOptions?.base44UserUuid?.trim();
-
-      if (!base44UserUuid) {
-        return { ok: false, status: 0, error: 'יש להזין קוד חיבור ל-MoneyMoney' };
-      }
-      if (!base44Url || !base44ApiKey) {
-        return { ok: false, status: 0, error: 'Missing configuration' };
-      }
-
-      await sendTransactionsToBase44([], base44Url, base44ApiKey, base44UserUuid);
-      return { ok: true, status: 200 };
     } catch (e) {
       return { ok: false, status: 0, error: (e as Error).message };
     }

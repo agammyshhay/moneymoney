@@ -1,4 +1,4 @@
-import { openExternal, openItem, updateConfig } from '#preload';
+import { openExternal, openItem, updateConfig, hasBase44Token as hasBase44TokenFn } from '#preload';
 import { autorun, makeAutoObservable, toJS } from 'mobx';
 import { createContext, useContext } from 'react';
 import accountMetadata, { exporterUIHandlers } from '../accountMetadata';
@@ -93,6 +93,7 @@ export class ConfigStore {
   chromeDownloadPercent = 0;
   nextAutomaticScrapeDate?: Date | null;
   scrapeRunning = false;
+  hasBearerToken = false;
 
   // [CUSTOM-SUMMARY-START]
   lastScrapeSummary: ScrapeSummary = {
@@ -123,9 +124,6 @@ export class ConfigStore {
           active: true,
           options: {
             filePath: 'transaction.json',
-            base44Url: '',
-            base44ApiKey: '',
-            base44UserUuid: '',
           },
         },
       },
@@ -142,6 +140,11 @@ export class ConfigStore {
     // [CUSTOM-HISTORY-END]
 
     makeAutoObservable(this);
+
+    // Check Bearer token presence on init
+    hasBase44TokenFn().then((has) => {
+      this.hasBearerToken = has;
+    });
 
     autorun(() => {
       if (this.configLoaded) {
@@ -200,8 +203,7 @@ export class ConfigStore {
     const config = this.config;
     if (!config?.scraping) return true;
     const noAccounts = config.scraping.accountsToScrape.length === 0;
-    const noUuid = !config.outputVendors?.json?.options?.base44UserUuid;
-    return noAccounts && noUuid;
+    return noAccounts && !this.hasBearerToken;
   }
   // [CUSTOM-ONBOARDING-END]
 
@@ -400,18 +402,6 @@ export class ConfigStore {
     this.config.outputVendors.json.options.filePath = filePath;
   }
 
-  // [CUSTOM-BASE44-START] - Base44 Config Setters
-  async setBase44Url(url?: string) {
-    if (!this.config.outputVendors.json) {
-      this.config.outputVendors.json = {
-        active: true,
-        options: { filePath: '', base44Url: url ?? '' },
-      } as unknown as Config['outputVendors']['json'];
-      return;
-    }
-    this.config.outputVendors.json.options.base44Url = url ?? '';
-  }
-
   // [CUSTOM-STARTUP-START]
   toggleRunAtStartup() {
     this.config.runAtStartup = !(this.config.runAtStartup ?? true);
@@ -421,30 +411,6 @@ export class ConfigStore {
     this.config.minimizeToTray = !(this.config.minimizeToTray ?? true);
   }
   // [CUSTOM-STARTUP-END]
-
-  async setBase44ApiKey(apiKey?: string) {
-    if (!this.config.outputVendors.json) {
-      this.config.outputVendors.json = {
-        active: true,
-        options: { filePath: '', base44ApiKey: apiKey ?? '' },
-      } as unknown as Config['outputVendors']['json'];
-      return;
-    }
-    this.config.outputVendors.json.options.base44ApiKey = apiKey ?? '';
-  }
-
-  async setBase44UserUuid(userUuid?: string) {
-    const normalized = (userUuid ?? '').trim();
-    if (!this.config.outputVendors.json) {
-      this.config.outputVendors.json = {
-        active: true,
-        options: { filePath: '', base44UserUuid: normalized },
-      } as unknown as Config['outputVendors']['json'];
-      return;
-    }
-    this.config.outputVendors.json.options.base44UserUuid = normalized;
-  }
-  // [CUSTOM-BASE44-END]
 
   async toggleShowBrowser() {
     this.config.scraping.showBrowser = !this.config.scraping.showBrowser;

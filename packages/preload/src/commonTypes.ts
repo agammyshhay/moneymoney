@@ -63,9 +63,6 @@ export interface CsvConfig extends OutputVendorConfigBase {
 export interface JsonConfig extends OutputVendorConfigBase {
   options: {
     filePath: string;
-    base44Url?: string;
-    base44ApiKey?: string;
-    base44UserUuid?: string;
   };
 }
 

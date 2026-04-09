@@ -1,7 +1,7 @@
 // [CUSTOM-BASE44-START]
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { Form, Button, Collapse } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import {
   testBase44Connection,
   syncJsonToBase44,
@@ -26,9 +26,6 @@ function Base44Settings() {
   const [hasToken, setHasToken] = useState(false);
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [tokenExpired, setTokenExpired] = useState(false);
-  const [showManualConnect, setShowManualConnect] = useState(false);
-
-  const base44UserUuid = configStore.config?.outputVendors?.json?.options?.base44UserUuid ?? '';
 
   const checkToken = useCallback(async () => {
     setIsCheckingToken(true);
@@ -62,10 +59,6 @@ function Base44Settings() {
     };
   }, []);
 
-  const handleBase44UserUuidChange = (value: string) => {
-    configStore.setBase44UserUuid(value);
-  };
-
   const handleDisconnect = async () => {
     await clearBase44Token();
     setHasToken(false);
@@ -78,7 +71,6 @@ function Base44Settings() {
   };
 
   const isConnected = hasToken;
-  const hasLegacyConnection = !hasToken && !!base44UserUuid.trim();
 
   if (isCheckingToken) {
     return (
@@ -97,20 +89,13 @@ function Base44Settings() {
       <div className={styles.connectionStatus}>
         <span
           className={`${styles.statusDot} ${
-            isConnected
-              ? styles.statusConnected
-              : tokenExpired
-                ? styles.statusExpired
-                : hasLegacyConnection
-                  ? styles.statusLegacy
-                  : styles.statusDisconnected
+            isConnected ? styles.statusConnected : tokenExpired ? styles.statusExpired : styles.statusDisconnected
           }`}
         />
         <span className={styles.connectionText}>
           {isConnected && 'מחובר ל-MoneyMoney'}
           {tokenExpired && 'החיבור פג תוקף, יש להתחבר מחדש'}
-          {!isConnected && !tokenExpired && hasLegacyConnection && 'מחובר באמצעות קוד חיבור (שיטה ישנה)'}
-          {!isConnected && !tokenExpired && !hasLegacyConnection && 'לא מחובר'}
+          {!isConnected && !tokenExpired && 'לא מחובר'}
         </span>
       </div>
 
@@ -182,90 +167,12 @@ function Base44Settings() {
 
       {/* Not connected / expired: show connect button */}
       {!isConnected && (
-        <>
-          <div className={styles.actionButtonsWrapper}>
-            <Button className={styles.buttonPrimary} onClick={handleConnect}>
-              {tokenExpired ? 'התחבר מחדש' : 'חבר חשבון'}
-            </Button>
-            <span className={styles.statusText}>לחיצה תפתח את הדפדפן לחיבור החשבון</span>
-          </div>
-
-          {/* Legacy manual connection (collapsible) */}
-          <div className={styles.fallbackSection}>
-            <Button
-              variant="link"
-              className={styles.fallbackToggle}
-              onClick={() => setShowManualConnect(!showManualConnect)}
-            >
-              {showManualConnect ? 'הסתר חיבור ידני' : 'חיבור ידני (מתקדם)'}
-              <i className={`bi bi-chevron-${showManualConnect ? 'up' : 'down'} ${styles.chevronIcon}`} />
-            </Button>
-            <Collapse in={showManualConnect}>
-              <div>
-                <Form.Group className={styles.inputGroup}>
-                  <Form.Label className={styles.label}>קוד חיבור ל-MoneyMoney</Form.Label>
-                  <Form.Control
-                    type="password"
-                    className={styles.input}
-                    placeholder="הדבק כאן את המזהה האישי שלך"
-                    value={base44UserUuid}
-                    onChange={(event) => handleBase44UserUuidChange(event.target.value)}
-                  />
-                  <Form.Text className="text-muted">ניתן למצוא את קוד החיבור באזור ההגדרות באפליקציה</Form.Text>
-                </Form.Group>
-                <div className={styles.actionButtonsWrapper}>
-                  <Button
-                    className={styles.buttonSecondary}
-                    onClick={async () => {
-                      setIsTestingBase44(true);
-                      setBase44TestResult('');
-                      try {
-                        const res = await testBase44Connection();
-                        if (res.ok) {
-                          setBase44TestResult(`החיבור הצליח (סטטוס ${res.status})`);
-                        } else {
-                          setBase44TestResult(`החיבור נכשל: ${res.error ?? `סטטוס ${res.status}`}`);
-                        }
-                      } catch (e) {
-                        setBase44TestResult(`שגיאת בדיקה: ${(e as Error).message}`);
-                      } finally {
-                        setIsTestingBase44(false);
-                      }
-                    }}
-                    disabled={isTestingBase44 || !base44UserUuid.trim()}
-                  >
-                    בדוק חיבור
-                  </Button>
-                  {!!base44TestResult && <span className={styles.statusText}>{base44TestResult}</span>}
-                  <Button
-                    className={styles.buttonPrimary}
-                    onClick={async () => {
-                      setIsSyncingBase44(true);
-                      setBase44SyncResult('');
-                      try {
-                        await updateConfig(toJS(configStore.config));
-                        const res = await syncJsonToBase44();
-                        if (res.ok) {
-                          setBase44SyncResult(`סנכרון הצליח: ${res.count} תנועות נשלחו`);
-                        } else {
-                          setBase44SyncResult(`סנכרון נכשל: ${res.error}`);
-                        }
-                      } catch (e) {
-                        setBase44SyncResult(`שגיאת סנכרון: ${(e as Error).message}`);
-                      } finally {
-                        setIsSyncingBase44(false);
-                      }
-                    }}
-                    disabled={isSyncingBase44 || !base44UserUuid.trim()}
-                  >
-                    סנכרן עכשיו
-                  </Button>
-                  {!!base44SyncResult && <span className={styles.statusText}>{base44SyncResult}</span>}
-                </div>
-              </div>
-            </Collapse>
-          </div>
-        </>
+        <div className={styles.actionButtonsWrapper}>
+          <Button className={styles.buttonPrimary} onClick={handleConnect}>
+            {tokenExpired ? 'התחבר מחדש' : 'חבר חשבון'}
+          </Button>
+          <span className={styles.statusText}>לחיצה תפתח את הדפדפן לחיבור החשבון</span>
+        </div>
       )}
     </div>
   );

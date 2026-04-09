@@ -41,6 +41,11 @@ vi.mock('#preload', () => ({
   validateToken: vi.fn(),
   stopPeriodicScraping: vi.fn(),
   downloadUpdate: vi.fn(),
+  hasBase44Token: vi.fn().mockResolvedValue(false),
+  clearBase44Token: vi.fn().mockResolvedValue({ ok: true }),
+  onBase44TokenReceived: vi.fn().mockReturnValue(vi.fn()),
+  onBase44TokenExpired: vi.fn().mockReturnValue(vi.fn()),
+  getBase44ConnectUrl: vi.fn().mockResolvedValue('https://moneym.base44.app/desktop-connect-code?state=test'),
 }));
 
 import App from './App';
@@ -102,7 +107,6 @@ const populatedConfig: Config = {
       active: true,
       options: {
         filePath: 'transactions.json',
-        base44UserUuid: 'some-uuid-value',
       },
     },
   },
@@ -195,21 +199,12 @@ describe('USE_CASES.md — UC#6: Sync for returning user', () => {
 });
 
 describe('USE_CASES.md — E5: No active accounts', () => {
-  it('renders sync button even with zero accounts', async () => {
-    // Config with scraping section but empty accounts — not a "first run" if UUID is set
-    const noAccountsWithUuid: Config = {
-      ...emptyConfig,
-      outputVendors: {
-        json: {
-          active: true,
-          options: {
-            filePath: 'transactions.json',
-            base44UserUuid: 'existing-uuid',
-          },
-        },
-      },
-    };
-    mockGetConfig.mockResolvedValue(noAccountsWithUuid);
+  it('renders sync button even with zero accounts when Bearer token exists', async () => {
+    // Config with scraping section but empty accounts — not a "first run" if Bearer token exists
+    runInAction(() => {
+      configStore.hasBearerToken = true;
+    });
+    mockGetConfig.mockResolvedValue(emptyConfig);
 
     render(<App />);
 
@@ -253,40 +248,20 @@ describe('USE_CASES.md — E7: Corrupted/missing config file', () => {
 });
 
 describe('isFirstRun edge cases', () => {
-  it('returns false when no accounts but UUID is set (user connected MoneyMoney)', () => {
-    const configWithUuidOnly: Config = {
-      ...emptyConfig,
-      outputVendors: {
-        json: {
-          active: true,
-          options: {
-            filePath: 'transactions.json',
-            base44UserUuid: 'some-uuid',
-          },
-        },
-      },
-    };
+  it('returns false when no accounts but Bearer token exists', () => {
     runInAction(() => {
-      configStore.updateConfig(configWithUuidOnly);
+      configStore.updateConfig(emptyConfig);
+      configStore.hasBearerToken = true;
     });
-    // noAccounts=true, noUuid=false → false (UUID counts as setup progress)
+    // noAccounts=true, hasBearerToken=true → false (token counts as setup progress)
     expect(configStore.isFirstRun).toBe(false);
   });
 
-  it('returns false when accounts exist but no UUID', () => {
-    const configWithAccountsOnly: Config = {
-      ...populatedConfig,
-      outputVendors: {
-        json: {
-          active: true,
-          options: { filePath: 'transactions.json' },
-        },
-      },
-    };
+  it('returns false when accounts exist but no Bearer token', () => {
     runInAction(() => {
-      configStore.updateConfig(configWithAccountsOnly);
+      configStore.updateConfig(populatedConfig);
     });
-    // noAccounts=false, noUuid=true → false (accounts exist, UUID optional)
+    // noAccounts=false, hasBearerToken=false → false (accounts exist)
     expect(configStore.isFirstRun).toBe(false);
   });
 });

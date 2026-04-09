@@ -19,9 +19,6 @@ const DEFAULT_CONFIG: Config = {
       active: true,
       options: {
         filePath: 'transaction.json',
-        base44Url: '',
-        base44ApiKey: '',
-        base44UserUuid: '',
       },
     },
     ynab: {

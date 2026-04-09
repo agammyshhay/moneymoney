@@ -71,7 +71,6 @@ jobs:
       MODE: production
       VITE_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       VITE_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      VITE_BASE44_API_KEY: ${{ secrets.VITE_BASE44_API_KEY }}
 
 
     permissions:

@@ -3,7 +3,6 @@ import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
 import { Button, Card, Form, Image } from 'react-bootstrap';
 import type { CsvConfig, Exporter, JsonConfig } from '/@/types';
-import { OutputVendorName } from '/@/types';
 import styles from './EditFileExporter.module.css';
 
 interface EditFileExporterProps {
@@ -61,26 +60,6 @@ const EditFileExporter = ({ handleSave, exporter }: EditFileExporterProps) => {
                 onChange={handleChooseFile}
               />
             </Form.Group>
-            {exporterConfig.companyId === OutputVendorName.JSON && (
-              <>
-                <Form.Group controlId="base44Url" className="mb-3">
-                  <Form.Label>כתובת BASE44 (URL)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={(exporterConfig.options as JsonConfig['options']).base44Url ?? ''}
-                    onChange={(e) => updateOption({ base44Url: e.target.value })}
-                  />
-                </Form.Group>
-                <Form.Group controlId="base44ApiKey" className="mb-3">
-                  <Form.Label>מפתח API ל‑BASE44 (אופציונלי)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={(exporterConfig.options as JsonConfig['options']).base44ApiKey ?? ''}
-                    onChange={(e) => updateOption({ base44ApiKey: e.target.value })}
-                  />
-                </Form.Group>
-              </>
-            )}
             <Form.Group controlId="exporterActive">
               <Form.Check type="switch" onChange={handleActiveChange} label="פעיל" checked={exporterConfig.active} />
             </Form.Group>

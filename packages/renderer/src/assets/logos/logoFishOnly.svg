@@ -54,4 +54,11 @@
     <ellipse cx="0" cy="0" rx="22" ry="26" fill="url(#coinGrad)" stroke="#f9a825" stroke-width="2"/>
     <text x="0" y="6" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="22" fill="#f57f17">₪</text>
   </g>
+  <!-- Desktop badge (bottom-left corner) -->
+  <g transform="translate(10, 380)">
+    <circle cx="60" cy="60" r="62" fill="white" opacity="0.95" stroke="#bbdefb" stroke-width="2"/>
+    <rect x="28" y="30" width="64" height="44" rx="5" fill="none" stroke="#0d47a1" stroke-width="6"/>
+    <line x1="60" y1="74" x2="60" y2="88" stroke="#0d47a1" stroke-width="6" stroke-linecap="round"/>
+    <line x1="42" y1="88" x2="78" y2="88" stroke="#0d47a1" stroke-width="6" stroke-linecap="round"/>
+  </g>
 </svg>

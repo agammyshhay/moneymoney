@@ -40,6 +40,11 @@ vi.mock('#preload', () => ({
   validateToken: vi.fn(),
   stopPeriodicScraping: vi.fn(),
   downloadUpdate: vi.fn(),
+  hasBase44Token: vi.fn().mockResolvedValue(false),
+  clearBase44Token: vi.fn().mockResolvedValue({ ok: true }),
+  onBase44TokenReceived: vi.fn().mockReturnValue(vi.fn()),
+  onBase44TokenExpired: vi.fn().mockReturnValue(vi.fn()),
+  getBase44ConnectUrl: vi.fn().mockResolvedValue('https://moneym.base44.app/desktop-connect-code?state=test'),
 }));
 
 import App from './components/App';
@@ -89,7 +94,6 @@ const populatedConfig: Config = {
       active: true,
       options: {
         filePath: 'transactions.json',
-        base44UserUuid: 'some-uuid',
       },
     },
   },
@@ -479,30 +483,6 @@ describe('UC#11 — Account logs', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// USE CASE #12 — Set MoneyMoney UUID
-// ═══════════════════════════════════════════════════════════════════════════════
-describe('UC#12 — MoneyMoney Base44 UUID', () => {
-  it('setBase44UserUuid stores trimmed UUID', async () => {
-    runInAction(() => configStore.updateConfig(baseConfig));
-
-    await configStore.setBase44UserUuid('  my-uuid-123  ');
-
-    expect(configStore.config.outputVendors.json!.options.base44UserUuid).toBe('my-uuid-123');
-  });
-
-  it('UUID persists after config round-trip', async () => {
-    runInAction(() => configStore.updateConfig(baseConfig));
-    await configStore.setBase44UserUuid('persistent-uuid');
-
-    // Simulate re-reading config (as if restarting app)
-    const savedConfig = JSON.parse(JSON.stringify(configStore.config));
-    runInAction(() => configStore.updateConfig(savedConfig));
-
-    expect(configStore.config.outputVendors.json!.options.base44UserUuid).toBe('persistent-uuid');
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // USE CASE #20 — Periodic auto-sync scheduling
 // ═══════════════════════════════════════════════════════════════════════════════
 describe('UC#20 — Periodic auto-sync', () => {
@@ -643,7 +623,6 @@ describe('E4 — Base44 UUID not set', () => {
         json: {
           active: true,
           options: { filePath: 'transactions.json' },
-          // no base44UserUuid
         },
       },
     };
@@ -732,19 +711,15 @@ describe('E7 — Corrupted/missing config', () => {
 // isFirstRun edge cases (supports UC#1 + E7)
 // ═══════════════════════════════════════════════════════════════════════════════
 describe('isFirstRun edge cases', () => {
-  it('returns false when UUID set but no accounts', () => {
-    runInAction(() =>
-      configStore.updateConfig({
-        ...baseConfig,
-        outputVendors: {
-          json: { active: true, options: { filePath: 'f.json', base44UserUuid: 'uuid' } },
-        },
-      }),
-    );
+  it('returns false when Bearer token exists but no accounts', () => {
+    runInAction(() => {
+      configStore.updateConfig(baseConfig);
+      configStore.hasBearerToken = true;
+    });
     expect(configStore.isFirstRun).toBe(false);
   });
 
-  it('returns false when accounts exist but no UUID', () => {
+  it('returns false when accounts exist but no Bearer token', () => {
     runInAction(() => configStore.updateConfig(withAccounts(hapoalimAccount)));
     expect(configStore.isFirstRun).toBe(false);
   });

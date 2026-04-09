@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, nativeImage } from 'electron';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getConfig } from '@/backend/configManager/configManager';
@@ -48,6 +48,33 @@ async function createWindow() {
       console.log('Showing window');
       browserWindow?.show();
     }
+
+    // [CUSTOM-BASE44-START] Add desktop badge overlay on taskbar icon (Windows)
+    if (process.platform === 'win32') {
+      const overlaySize = 16;
+      const canvas = Buffer.alloc(overlaySize * overlaySize * 4);
+      // Draw a simple blue filled circle as "desktop" badge indicator
+      const cx = overlaySize / 2;
+      const cy = overlaySize / 2;
+      const r = overlaySize / 2 - 1;
+      for (let y = 0; y < overlaySize; y++) {
+        for (let x = 0; x < overlaySize; x++) {
+          const dx = x - cx;
+          const dy = y - cy;
+          if (dx * dx + dy * dy <= r * r) {
+            const idx = (y * overlaySize + x) * 4;
+            // Blue color (#1a73e8) in BGRA format
+            canvas[idx] = 0xe8; // B
+            canvas[idx + 1] = 0x73; // G
+            canvas[idx + 2] = 0x1a; // R
+            canvas[idx + 3] = 0xff; // A
+          }
+        }
+      }
+      const overlay = nativeImage.createFromBuffer(canvas, { width: overlaySize, height: overlaySize });
+      browserWindow.setOverlayIcon(overlay, 'Desktop App');
+    }
+    // [CUSTOM-BASE44-END]
 
     if (import.meta.env.DEV) {
       browserWindow?.webContents.openDevTools();

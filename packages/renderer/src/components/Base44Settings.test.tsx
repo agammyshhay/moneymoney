@@ -25,9 +25,6 @@ const dummyConfig: Config = {
       active: true,
       options: {
         filePath: 'test.json',
-        base44Url: 'https://test.base44.com',
-        base44ApiKey: 'secret-key',
-        base44UserUuid: 'user-uuid',
       },
     },
   },
@@ -55,7 +52,7 @@ describe('Base44Settings', () => {
       expect(screen.getByText(/חיבור ל-MoneyMoney/i)).toBeInTheDocument();
     });
 
-    // User has no Bearer token, so the "connect" / "not connected" state should show
-    expect(screen.getByText(/לא מחובר|מחובר באמצעות קוד חיבור/)).toBeInTheDocument();
+    // User has no Bearer token, so the "not connected" state should show
+    expect(screen.getByText(/לא מחובר/)).toBeInTheDocument();
   });
 });

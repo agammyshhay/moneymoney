@@ -24,6 +24,7 @@ import {
   getBase44Token,
   hasBase44Token as hasBase44TokenFn,
   clearBase44Token as clearBase44TokenFn,
+  generateAuthNonce,
 } from '@/backend/auth/base44Token';
 // [CUSTOM-BASE44-END]
 import { dialog, ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
@@ -138,6 +139,12 @@ const functions: Record<string, Listener> = {
   clearBase44Token: async () => {
     await clearBase44TokenFn();
     return { ok: true };
+  },
+  getBase44ConnectUrl: () => {
+    const nonce = generateAuthNonce();
+    const url = new URL('https://moneym.base44.app/desktop-connect-code');
+    url.searchParams.set('state', nonce);
+    return url.toString();
   },
   // [CUSTOM-BASE44-END]
 };

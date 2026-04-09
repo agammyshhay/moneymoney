@@ -1,8 +1,33 @@
 // [CUSTOM-BASE44-START]
+import crypto from 'node:crypto';
 import { saveIntoAccount, getFromAccount, deleteFromAccount } from '@/backend/configManager/encryption/keytar';
 
 const ACCOUNT_NAME = 'bearer-token';
 const MAX_TOKEN_LENGTH = 4096;
+
+// Deep-link auth nonce — prevents accepting unsolicited moneymoney://auth callbacks
+const AUTH_NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+let pendingAuthNonce: { nonce: string; createdAt: number } | null = null;
+
+export function generateAuthNonce(): string {
+  const nonce = crypto.randomBytes(32).toString('hex');
+  pendingAuthNonce = { nonce, createdAt: Date.now() };
+  return nonce;
+}
+
+export function validateAuthNonce(state: string | null): boolean {
+  if (!pendingAuthNonce) return false;
+  const elapsed = Date.now() - pendingAuthNonce.createdAt;
+  if (elapsed > AUTH_NONCE_TTL_MS) {
+    pendingAuthNonce = null;
+    return false;
+  }
+  // If Base44 echoes back the state param, verify it matches
+  if (state && state !== pendingAuthNonce.nonce) return false;
+  // Valid — consume the nonce so it can't be reused
+  pendingAuthNonce = null;
+  return true;
+}
 
 export async function saveBase44Token(token: string): Promise<void> {
   if (!token || typeof token !== 'string') {

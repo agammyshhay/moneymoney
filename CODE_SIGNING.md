@@ -16,10 +16,11 @@ This project's release binaries are signed using a certificate provided by [Sign
 
 This program will not transfer any information to other networked systems unless specifically requested by the user.
 
-All network activity in MoneyMoney is user-initiated:
+All network activity in MoneyMoney is user-initiated, with one exception:
 
 - **Bank scraping** — connects to bank websites only when the user triggers a sync (or enables automatic periodic sync in settings)
 - **Base44 / MoneyMoney web app sync** — pushes transactions to the companion web app only when the user has configured their connection code and triggered a sync
+- **Automatic update checks** — on startup, the app checks GitHub Releases for new versions and downloads updates in the background. This sends the current app version and OS information to GitHub. No personal or financial data is included.
 
 No analytics, telemetry, or tracking data is collected or transmitted.
 

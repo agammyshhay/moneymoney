@@ -11,12 +11,11 @@ import {
   onBase44TokenReceived,
   onBase44TokenExpired,
   openExternal,
+  getBase44ConnectUrl,
 } from '#preload';
 import { useState, useEffect, useCallback } from 'react';
 import { useConfigStore } from '../store/ConfigStore';
 import styles from './Base44Settings.module.css';
-
-const CONNECT_URL = 'https://moneym.base44.app/desktop-connect-code';
 
 function Base44Settings() {
   const configStore = useConfigStore();
@@ -73,8 +72,9 @@ function Base44Settings() {
     setTokenExpired(false);
   };
 
-  const handleConnect = () => {
-    openExternal(CONNECT_URL);
+  const handleConnect = async () => {
+    const url = await getBase44ConnectUrl();
+    openExternal(url);
   };
 
   const isConnected = hasToken;

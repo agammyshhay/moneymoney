@@ -131,6 +131,10 @@ export async function clearBase44Token(): Promise<{ ok: boolean }> {
   return electron.ipcRenderer.invoke('clearBase44Token');
 }
 
+export async function getBase44ConnectUrl(): Promise<string> {
+  return electron.ipcRenderer.invoke('getBase44ConnectUrl');
+}
+
 export function onBase44TokenReceived(callback: () => void): () => void {
   const handler = () => callback();
   electron.ipcRenderer.on('base44-token-received', handler);

@@ -12,7 +12,7 @@ import { migrateOldConfig } from '@/backend/configManager/migration';
 import { initAutoUpdate } from './handlers/updater';
 // [CUSTOM-UPDATE-END]
 // [CUSTOM-BASE44-START]
-import { saveBase44Token } from '@/backend/auth/base44Token';
+import { saveBase44Token, validateAuthNonce } from '@/backend/auth/base44Token';
 import logger from '/@/logging/logger';
 // [CUSTOM-BASE44-END]
 
@@ -25,13 +25,18 @@ async function handleDeepLink(url: string) {
     const parsed = new URL(url);
     if (parsed.hostname === 'auth') {
       const token = parsed.searchParams.get('token');
-      if (token) {
-        await saveBase44Token(token);
-        logger.info('Bearer token received via deep link');
-        const win = BrowserWindow.getAllWindows()[0];
-        if (win) {
-          win.webContents.send('base44-token-received');
-        }
+      const state = parsed.searchParams.get('state');
+      if (!token) return;
+      // Validate that a connect flow was recently initiated by the user
+      if (!validateAuthNonce(state)) {
+        logger.warn('Rejected deep-link auth callback: no active connect flow or nonce mismatch');
+        return;
+      }
+      await saveBase44Token(token);
+      logger.info('Bearer token received via deep link');
+      const win = BrowserWindow.getAllWindows()[0];
+      if (win) {
+        win.webContents.send('base44-token-received');
       }
     }
   } catch (e) {

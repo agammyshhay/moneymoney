@@ -47,6 +47,12 @@ const postJson = async (urlStr: string, payload: unknown, extraHeaders?: Record<
   new Promise<void>((resolve, reject) => {
     try {
       const urlObj = new URL(urlStr);
+      // [CUSTOM-FIX-START] Enforce HTTPS in production to prevent credential leakage
+      if (urlObj.protocol !== 'https:' && !import.meta.env.DEV) {
+        reject(new Error('BASE44 URL must use HTTPS'));
+        return;
+      }
+      // [CUSTOM-FIX-END]
       const body = JSON.stringify(payload);
       const isHttps = urlObj.protocol === 'https:';
       const requestLib = isHttps ? https : http;

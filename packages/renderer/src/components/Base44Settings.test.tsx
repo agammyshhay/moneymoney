@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import Base44Settings from './Base44Settings';
 import { ConfigStoreProvider, configStore } from '../store/ConfigStore';
@@ -10,6 +10,12 @@ vi.mock('#preload', () => ({
   testBase44Connection: vi.fn(),
   syncJsonToBase44: vi.fn(),
   updateConfig: vi.fn(),
+  hasBase44Token: vi.fn().mockResolvedValue(false),
+  clearBase44Token: vi.fn().mockResolvedValue({ ok: true }),
+  onBase44TokenReceived: vi.fn().mockReturnValue(vi.fn()),
+  onBase44TokenExpired: vi.fn().mockReturnValue(vi.fn()),
+  openExternal: vi.fn(),
+  getBase44ConnectUrl: vi.fn().mockResolvedValue('https://moneym.base44.app/desktop-connect-code?state=test'),
 }));
 
 // Setup a dummy config for the store
@@ -34,7 +40,7 @@ const dummyConfig: Config = {
 };
 
 describe('Base44Settings', () => {
-  it('renders Base44 settings inputs correctly', () => {
+  it('renders Base44 settings header and connect button', async () => {
     // Initialize store with dummy config
     configStore.config = dummyConfig;
 
@@ -44,10 +50,12 @@ describe('Base44Settings', () => {
       </ConfigStoreProvider>,
     );
 
-    // Check if the inputs are rendered with correct values
-    expect(screen.getByDisplayValue('user-uuid')).toBeInTheDocument();
+    // Wait for the async token check to complete
+    await waitFor(() => {
+      expect(screen.getByText(/חיבור ל-MoneyMoney/i)).toBeInTheDocument();
+    });
 
-    // Check for labels (searching by text content)
-    expect(screen.getByText(/קוד חיבור ל-MoneyMoney/i)).toBeInTheDocument();
+    // User has no Bearer token, so the "connect" / "not connected" state should show
+    expect(screen.getByText(/לא מחובר|מחובר באמצעות קוד חיבור/)).toBeInTheDocument();
   });
 });

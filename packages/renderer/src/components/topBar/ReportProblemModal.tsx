@@ -17,6 +17,10 @@ function sanitizeLogs(logs: string): string {
       .replace(/C:\\Users\\[^\\]+\\/gi, 'C:\\Users\\[USER]\\')
       // Redact values after sensitive keys
       .replace(/(apiKey|token|secret|password|api_key|apiSecret)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      // [CUSTOM-FIX-START] Redact proxy credentials (user:pass@host) and Authorization headers
+      .replace(/:\/\/[^@\s]+@/g, '://***@')
+      .replace(/(Authorization)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+    // [CUSTOM-FIX-END]
   );
 }
 

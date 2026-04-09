@@ -7,6 +7,13 @@ let originalHttpAgent: typeof http.globalAgent | null = null;
 let originalHttpsAgent: typeof https.globalAgent | null = null;
 let currentProxyAgent: ProxyAgent | null = null;
 
+// [CUSTOM-FIX-START] Strip credentials from proxy URLs before logging
+function sanitizeProxyUrl(url: string | undefined): string {
+  if (!url) return '';
+  return url.replace(/:\/\/[^@]*@/, '://***@');
+}
+// [CUSTOM-FIX-END]
+
 /**
  * Gets the proxy configuration from environment variables
  * Returns the proxy URL if found, and the NO_PROXY setting for bypass rules
@@ -52,7 +59,7 @@ export function initProxyIfNeeded(): void {
     http.globalAgent = currentProxyAgent;
     https.globalAgent = currentProxyAgent;
 
-    logger.log(`Using proxy: ${proxyUrl}${noProxy ? ` with NO_PROXY: ${noProxy}` : ''}`);
+    logger.log(`Using proxy: ${sanitizeProxyUrl(proxyUrl)}${noProxy ? ` with NO_PROXY: ${noProxy}` : ''}`);
   } catch (error) {
     logger.warn('Failed to initialize proxy agent:', error);
     throw error;
@@ -91,9 +98,9 @@ export function getProxyArgs(): string[] {
 
   if (noProxy) {
     args.push(`--proxy-bypass-list=${noProxy}`);
-    logger.log(`Using proxy for scraping: ${proxyUrl} with bypass list: ${noProxy}`);
+    logger.log(`Using proxy for scraping: ${sanitizeProxyUrl(proxyUrl)} with bypass list: ${noProxy}`);
   } else {
-    logger.log(`Using proxy for scraping: ${proxyUrl}`);
+    logger.log(`Using proxy for scraping: ${sanitizeProxyUrl(proxyUrl)}`);
   }
 
   return args;

@@ -63,6 +63,7 @@ function Base44Settings() {
     await clearBase44Token();
     setHasToken(false);
     setTokenExpired(false);
+    configStore.hasBearerToken = false;
   };
 
   const handleConnect = async () => {

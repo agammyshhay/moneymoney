@@ -1,4 +1,11 @@
-import { openExternal, openItem, updateConfig, hasBase44Token as hasBase44TokenFn } from '#preload';
+import {
+  openExternal,
+  openItem,
+  updateConfig,
+  hasBase44Token as hasBase44TokenFn,
+  onBase44TokenReceived,
+  onBase44TokenExpired,
+} from '#preload';
 import { autorun, makeAutoObservable, toJS } from 'mobx';
 import { createContext, useContext } from 'react';
 import accountMetadata, { exporterUIHandlers } from '../accountMetadata';
@@ -141,9 +148,15 @@ export class ConfigStore {
 
     makeAutoObservable(this);
 
-    // Check Bearer token presence on init
+    // Check Bearer token presence on init and listen for changes
     hasBase44TokenFn().then((has) => {
       this.hasBearerToken = has;
+    });
+    onBase44TokenReceived(() => {
+      this.hasBearerToken = true;
+    });
+    onBase44TokenExpired(() => {
+      this.hasBearerToken = false;
     });
 
     autorun(() => {

@@ -22,8 +22,10 @@ export function validateAuthNonce(state: string | null): boolean {
     pendingAuthNonce = null;
     return false;
   }
-  // If Base44 echoes back the state param, verify it matches
-  if (state && state !== pendingAuthNonce.nonce) return false;
+  // State parameter is REQUIRED — must match the nonce generated when user clicked Connect.
+  // This prevents token-injection attacks via malicious moneymoney://auth?token=... deep links
+  // that omit the state param.
+  if (!state || state !== pendingAuthNonce.nonce) return false;
   // Valid — consume the nonce so it can't be reused
   pendingAuthNonce = null;
   return true;

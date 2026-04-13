@@ -1,5 +1,50 @@
-import { app, shell, type Session } from 'electron';
+import { app, session, shell, type Session } from 'electron';
 import { URL } from 'node:url';
+
+// [CUSTOM-FIX-START] Content Security Policy — applied to every response so both the
+// file:// production bundle and the Vite dev server are constrained. Restricts script/style/
+// connect origins so a compromised renderer or malicious dependency can't exfiltrate data.
+function buildCSP(): string {
+  const base44 = 'https://moneym.base44.app';
+  if (import.meta.env.DEV) {
+    // Vite dev server needs WebSocket HMR + inline scripts it injects; loosen just enough.
+    return [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self' data:",
+      `connect-src 'self' ws://localhost:* http://localhost:* ${base44}`,
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ');
+  }
+  return [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'", // Bootstrap + React inline styles
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${base44}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+}
+
+app.whenReady().then(() => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [buildCSP()],
+      },
+    });
+  });
+});
+// [CUSTOM-FIX-END]
 
 /**
  * Union for all existing permissions in electron

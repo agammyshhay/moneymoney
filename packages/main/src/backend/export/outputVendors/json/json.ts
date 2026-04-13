@@ -47,8 +47,10 @@ const postJson = async (urlStr: string, payload: unknown, extraHeaders?: Record<
   new Promise<void>((resolve, reject) => {
     try {
       const urlObj = new URL(urlStr);
-      // [CUSTOM-FIX-START] Enforce HTTPS in production to prevent credential leakage
-      if (urlObj.protocol !== 'https:' && !import.meta.env.DEV) {
+      // [CUSTOM-FIX-START] Enforce HTTPS for all Base44 traffic to prevent credential leakage.
+      // Exception: localhost/127.0.0.1 allowed (used for local dev testing only).
+      const isLocalhost = urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1';
+      if (urlObj.protocol !== 'https:' && !isLocalhost) {
         reject(new Error('BASE44 URL must use HTTPS'));
         return;
       }

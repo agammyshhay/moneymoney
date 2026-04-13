@@ -28,9 +28,9 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false, // Sandbox disabled because the demo of preload script depend on the Node.js api
+      sandbox: true, // Sandbox enabled — preload script uses only ipcRenderer; shell/fs ops are in main.
       webviewTag: false, // The webview tag is not recommended. Consider alternatives like an iframe or Electron's BrowserView. @see https://www.electronjs.org/docs/latest/api/webview-tag#warning
-      preload: join(app.getAppPath(), 'packages/preload/dist/index.mjs'),
+      preload: join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
     },
   });
 

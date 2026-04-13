@@ -22,13 +22,14 @@ const config = {
     minify: process.env.MODE !== 'development',
     lib: {
       entry: 'src/index.ts',
-      formats: ['es'],
+      // [CUSTOM-FIX] CJS format required for sandbox: true. ESM (.mjs) preload is not
+      // supported with sandbox in Electron 30. See:
+      // https://www.electronjs.org/docs/latest/tutorial/esm#esm-preload-scripts-must-have-the-mjs-extension
+      formats: ['cjs'],
     },
     rollupOptions: {
       output: {
-        // ESM preload scripts must have the .mjs extension
-        // https://www.electronjs.org/docs/latest/tutorial/esm#esm-preload-scripts-must-have-the-mjs-extension
-        entryFileNames: '[name].mjs',
+        entryFileNames: '[name].cjs',
       },
     },
     emptyOutDir: true,

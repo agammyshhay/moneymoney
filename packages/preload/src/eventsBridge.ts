@@ -21,8 +21,10 @@ export async function getYnabAccountData(ynabOptions: YnabConfig['options']): Pr
   return electron.ipcRenderer.invoke('getYnabAccountData', ynabOptions);
 }
 
-export async function scrape(handleScrapingEvent: HandleScrapingEvent, config?: Config) {
+export async function scrape(handleScrapingEvent: HandleScrapingEvent, accountIdFilter?: string) {
   // [CUSTOM-FIX-START]
+  // Security: renderer no longer sends a Config (with credentials) to main. Main loads config
+  // from disk; renderer can only optionally filter to a single account by id.
   // Reset listener to ensure we use the latest callback and avoid duplicates
   electron.ipcRenderer.removeAllListeners('scrapingProgress');
 
@@ -34,7 +36,7 @@ export async function scrape(handleScrapingEvent: HandleScrapingEvent, config?: 
   });
 
   console.log('Sending scrape event to main');
-  await electron.ipcRenderer.send('scrape', config);
+  await electron.ipcRenderer.send('scrape', accountIdFilter);
   // [CUSTOM-FIX-END]
 }
 
@@ -42,21 +44,18 @@ export async function stopPeriodicScraping() {
   return electron.ipcRenderer.invoke('stopPeriodicScraping');
 }
 
+// Shell operations are proxied to the main process via IPC so the renderer can run under
+// sandbox: true. Main process performs authoritative validation (see handlers/index.ts).
 export async function openExternal(url: string) {
   if (!/^https?:\/\//i.test(url)) {
     console.warn('Blocked openExternal for non-http URL:', url);
     return;
   }
-  await electron.shell.openExternal(url);
+  await electron.ipcRenderer.invoke('openExternal', url);
 }
 
 export async function openItem(filePath: string) {
-  const dangerous = /\.(exe|bat|cmd|com|msi|ps1|vbs|js|wsf|scr)$/i;
-  if (dangerous.test(filePath)) {
-    console.warn('Blocked openItem for dangerous file type:', filePath);
-    return;
-  }
-  await electron.shell.openPath(filePath);
+  await electron.ipcRenderer.invoke('openItem', filePath);
 }
 
 export async function getLogsInfo(numOfLastLines: number) {

@@ -62,7 +62,8 @@ const Body = () => {
     configStore.clearScrapingStatus();
     try {
       // [CUSTOM-FIX-START]
-      await scrape(configStore.handleScrapingEvent.bind(configStore), toJS(configStore.config));
+      // Security: do not send config (with credentials) to main — main loads from disk.
+      await scrape(configStore.handleScrapingEvent.bind(configStore));
       // [CUSTOM-FIX-END]
     } finally {
       // [CUSTOM-SUMMARY-START] - Show summary when done
@@ -76,7 +77,8 @@ const Body = () => {
   // [CUSTOM-SINGLE-RUN-START]
   const runSingleAccount = useCallback(
     async (accountId: string) => {
-      // Create a temporary config with only the selected account
+      // Security: we pass only the accountId string to main — never credentials. Main loads
+      // the authoritative config from disk and filters to this single account server-side.
       const fullConfig = toJS(configStore.config);
       const accountToRun = fullConfig.scraping.accountsToScrape.find((a) => a.id === accountId);
 
@@ -84,16 +86,8 @@ const Body = () => {
         // Clear logs for this specific account
         configStore.clearAccountScrapingData(accountToRun.key);
 
-        const singleAccountConfig = {
-          ...fullConfig,
-          scraping: {
-            ...fullConfig.scraping,
-            accountsToScrape: [accountToRun],
-          },
-        };
-
         try {
-          await scrape(configStore.handleScrapingEvent.bind(configStore), singleAccountConfig);
+          await scrape(configStore.handleScrapingEvent.bind(configStore), accountId);
         } catch (e) {
           console.error('Failed to run single account', e);
         }

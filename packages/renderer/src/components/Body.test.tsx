@@ -181,13 +181,11 @@ describe('USE_CASES.md — UC#6: Sync for returning user', () => {
       expect(mockScrape).toHaveBeenCalled();
     });
 
-    // Verify scrape was called with the populated config (has accounts)
+    // Security change: renderer no longer sends config (with credentials) to main.
+    // Main loads config from disk. For the full-scrape flow, renderer passes no 2nd arg.
     const callArgs = mockScrape.mock.calls[0];
-    expect(callArgs[1]).toMatchObject({
-      scraping: {
-        accountsToScrape: expect.arrayContaining([expect.objectContaining({ key: CompanyTypes.HAPOALIM })]),
-      },
-    });
+    expect(callArgs[0]).toBeInstanceOf(Function);
+    expect(callArgs[1]).toBeUndefined();
   });
 
   it('isFirstRun returns false when accounts exist', () => {

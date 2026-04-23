@@ -17,6 +17,12 @@ export async function updateConfig(config: Config) {
   await electron.ipcRenderer.invoke('updateConfig', JSON.stringify(config));
 }
 
+// [CUSTOM-FIX-START] — Send credentials directly to main, bypassing MobX store
+export async function updateImporterCredentials(accountId: string, loginFields: Record<string, string>) {
+  await electron.ipcRenderer.invoke('updateImporterCredentials', accountId, JSON.stringify(loginFields));
+}
+// [CUSTOM-FIX-END]
+
 export async function getYnabAccountData(ynabOptions: YnabConfig['options']): Promise<YnabAccountDataType> {
   return electron.ipcRenderer.invoke('getYnabAccountData', ynabOptions);
 }

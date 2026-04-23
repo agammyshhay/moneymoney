@@ -55,6 +55,7 @@ const createAccountToScrapeConfigFromImporter = (importerConfig: Importer): Acco
   key: importerConfig.companyId as CompanyTypes,
   loginFields: importerConfig.loginFields,
   name: importerConfig.displayName,
+  // hasCredentials is intentionally omitted — it's computed by main, never persisted
 });
 
 const createOutputVendorConfigFromExporter = (exporterConfig: Exporter) => ({
@@ -177,10 +178,11 @@ export class ConfigStore {
 
   get importers(): Importer[] {
     if (!this.config?.scraping) return [];
-    return this.config.scraping.accountsToScrape.map(({ id, key, active, loginFields }) => {
+    return this.config.scraping.accountsToScrape.map(({ id, key, active, loginFields, hasCredentials }) => {
       return {
         ...createAccountObject(id, key, AccountType.IMPORTER, !!active, this.accountScrapingData.get(key)),
         loginFields,
+        hasCredentials,
       };
     });
   }

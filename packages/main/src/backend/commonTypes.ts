@@ -82,6 +82,8 @@ export interface AccountToScrapeConfig {
   name: string;
   loginFields: ScraperCredentials;
   active?: boolean;
+  /** Computed by main when sending config to renderer. Never persisted to disk. */
+  hasCredentials?: boolean;
 }
 
 export interface EnrichedTransaction extends Transaction {

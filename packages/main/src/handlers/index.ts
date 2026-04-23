@@ -29,7 +29,7 @@ import {
 import { dialog, ipcMain, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { discord, repository } from '../../../../package.json';
 import os from 'os';
-import { getConfigHandler, updateConfigHandler } from './configHandlers';
+import { getConfigHandler, updateConfigHandler, updateImporterCredentialsHandler } from './configHandlers';
 import { BASE44_DEFAULT_CONFIG } from '@/config/base44';
 import { getLogsInfoHandler } from './logsHandlers';
 import { checkForUpdate, downloadUpdate, getUpdateStatus, quitAndInstall } from './updater';
@@ -92,6 +92,12 @@ const functions: Record<string, Listener> = {
   getUpdateStatus,
   getConfig: getConfigHandler,
   updateConfig: updateConfigHandler as Listener<void>,
+  updateImporterCredentials: rateLimited(
+    'updateImporterCredentials',
+    1_000,
+    undefined,
+    updateImporterCredentialsHandler as Listener<void>,
+  ),
   getYnabAccountData,
   getLogsInfo: rateLimited('getLogsInfo', 500, { lastLines: '', logsFolder: '' }, getLogsInfoHandler),
   stopPeriodicScraping,

@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoneyMoney &mdash; Security &amp; Privacy Audit Report</title>
+  <style>
+    :root {
+      --critical: #dc2626;
+      --critical-bg: #fef2f2;
+      --critical-border: #fca5a5;
+      --high: #ea580c;
+      --high-bg: #fff7ed;
+      --high-border: #fdba74;
+      --medium: #ca8a04;
+      --medium-bg: #fefce8;
+      --medium-border: #fde047;
+      --low: #2563eb;
+      --green: #16a34a;
+      --green-bg: #f0fdf4;
+      --green-border: #86efac;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    .header .subtitle { color: #94a3b8; font-size: 1.1rem; }
+    .header .date { color: #64748b; font-size: 0.9rem; margin-top: 12px; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    .exec-summary {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .exec-summary h2 { font-size: 1.4rem; margin-bottom: 16px; }
+    .exec-summary p { color: var(--text-muted); margin-bottom: 16px; }
+
+    .severity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .severity-card {
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .severity-card .count { font-size: 2.2rem; font-weight: 800; }
+    .severity-card .label { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sev-critical { background: var(--critical-bg); border: 2px solid var(--critical-border); color: var(--critical); }
+    .sev-high { background: var(--high-bg); border: 2px solid var(--high-border); color: var(--high); }
+    .sev-medium { background: var(--medium-bg); border: 2px solid var(--medium-border); color: var(--medium); }
+    .sev-good { background: var(--green-bg); border: 2px solid var(--green-border); color: var(--green); }
+
+    .risk-matrix {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow-x: auto;
+    }
+    .risk-matrix h2 { font-size: 1.4rem; margin-bottom: 8px; }
+    .risk-matrix .desc { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.88rem;
+    }
+    .matrix-table th {
+      background: #f1f5f9;
+      padding: 12px 10px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+    .matrix-table td {
+      padding: 14px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .matrix-table tr:last-child td { border-bottom: none; }
+    .matrix-table tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .badge-critical { background: var(--critical); color: white; }
+    .badge-high { background: var(--high); color: white; }
+    .badge-medium { background: var(--medium); color: white; }
+
+    .complexity-badge, .usability-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .complexity-low { background: #dcfce7; color: #166534; }
+    .complexity-medium { background: #fef9c3; color: #854d0e; }
+    .complexity-high { background: #fee2e2; color: #991b1b; }
+
+    .usability-none { background: #dcfce7; color: #166534; }
+    .usability-minor { background: #fef9c3; color: #854d0e; }
+    .usability-moderate { background: #ffedd5; color: #9a3412; }
+
+    /* Status badges (progress tracking) */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .status-pending { background: #f1f5f9; color: #64748b; }
+    .status-inprogress { background: #dbeafe; color: #1e40af; }
+    .status-done { background: #dcfce7; color: #166534; }
+
+    .finding.resolved .finding-header { background: #f0fdf4; }
+    .finding.resolved .finding-title { color: #166534; }
+    .finding.resolved .finding-title::before { content: "\2713  "; color: var(--green); font-weight: 900; }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .progress-wrap h3 { font-size: 1rem; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
+    .progress-wrap h3 .pct { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+    .progress-bar {
+      height: 10px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
+      transition: width 0.3s ease;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 40px 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .finding {
+      background: var(--card-bg);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .finding-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .finding-header:hover { background: #fafbfc; }
+    .finding-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      color: white;
+    }
+    .num-critical { background: var(--critical); }
+    .num-high { background: var(--high); }
+    .num-medium { background: var(--medium); }
+
+    .finding-title-area { flex: 1; min-width: 0; }
+    .finding-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .finding-file { font-size: 0.82rem; color: var(--text-muted); font-family: 'Consolas', 'Fira Code', monospace; word-break: break-all; }
+    .finding-badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .finding-toggle {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+    .finding.open .finding-toggle { transform: rotate(180deg); }
+
+    .finding-body {
+      display: none;
+      padding: 0 24px 24px 76px;
+    }
+    .finding.open .finding-body { display: block; }
+
+    .finding-section { margin-bottom: 16px; }
+    .finding-section h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .finding-section p { font-size: 0.92rem; color: #475569; }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      color: #334155;
+      margin: 8px 0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .info-box {
+      border-radius: 8px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+    .info-box h5 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .info-box p { font-size: 0.88rem; font-weight: 500; }
+    .info-box .detail { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; font-weight: 400; }
+
+    .recommendation {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      color: #0c4a6e;
+    }
+    .recommendation strong { color: #075985; }
+
+    .good-practices {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 32px 0;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .good-practices h2 { font-size: 1.3rem; margin-bottom: 16px; color: var(--green); }
+    .good-list { list-style: none; }
+    .good-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .good-list li:last-child { border-bottom: none; }
+    .check { color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+    .roadmap {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 32px 0;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .roadmap h2 { font-size: 1.3rem; margin-bottom: 16px; }
+    .phase { margin-bottom: 24px; }
+    .phase-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .phase-num {
+      background: #1e293b;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .phase-items { list-style: none; padding-left: 36px; }
+    .phase-items li {
+      padding: 4px 0;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .severity-grid { grid-template-columns: repeat(2, 1fr); }
+      .finding-body { padding-left: 24px; }
+      .finding-header { gap: 10px; }
+      .matrix-table { font-size: 0.8rem; }
+      .matrix-table th, .matrix-table td { padding: 8px 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Security &amp; Privacy Audit Report</h1>
+  <div class="subtitle">MoneyMoney Desktop App (Electron)</div>
+  <div class="date">Audit Date: April 2026</div>
+</div>
+
+<div class="container">
+
+  <div class="exec-summary">
+    <h2>Executive Summary</h2>
+    <p>
+      MoneyMoney handles extremely sensitive data: Israeli bank login credentials (usernames, passwords, card numbers),
+      financial transactions, and API authentication tokens. This audit identified <strong>16 security vulnerabilities</strong>
+      across the Electron main process, preload bridge, renderer, build pipeline, and data storage layers.
+    </p>
+    <p>
+      The most critical findings involve <strong>weak encryption key derivation</strong> that protects all bank credentials,
+      a <strong>missing Content Security Policy</strong> that leaves the app open to XSS attacks, a <strong>disabled Chromium sandbox</strong>,
+      and <strong>unsigned auto-updates</strong> that could allow malware injection.
+    </p>
+    <div class="severity-grid">
+      <div class="severity-card sev-critical"><div class="count">4</div><div class="label">Critical</div></div>
+      <div class="severity-card sev-high"><div class="count">6</div><div class="label">High</div></div>
+      <div class="severity-card sev-medium"><div class="count">6</div><div class="label">Medium</div></div>
+      <div class="severity-card sev-good"><div class="count">9</div><div class="label">Good Practices</div></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <h3>Remediation Progress <span class="pct" id="progressText">0 / 16 fixed</span></h3>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="risk-matrix">
+    <h2>Risk Management Matrix</h2>
+    <p class="desc">All findings with severity, fix complexity, usability impact, and remediation status.</p>
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th style="width:30px">#</th>
+          <th>Vulnerability</th>
+          <th>Severity</th>
+          <th>Fix Complexity</th>
+          <th>Usability Impact</th>
+          <th>Risk</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-id="1"><td>1</td><td>Hardcoded encryption password</td><td><span class="badge badge-critical">Critical</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-minor">Minor</span></td><td><strong style="color:var(--critical)">9.5</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="2"><td>2</td><td>No Content Security Policy</td><td><span class="badge badge-critical">Critical</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--critical)">9.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="3"><td>3</td><td>Chromium sandbox disabled</td><td><span class="badge badge-critical">Critical</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--critical)">9.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="4"><td>4</td><td>Unsigned auto-updates</td><td><span class="badge badge-critical">Critical</span></td><td><span class="complexity-badge complexity-high">High</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--critical)">8.5</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="5"><td>5</td><td>Bank credentials sent to renderer</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-minor">Minor</span></td><td><strong style="color:var(--high)">8.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="6"><td>6</td><td>Renderer can inject scrape config</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--high)">7.5</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="7"><td>7</td><td>Sensitive data in plaintext logs</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-minor">Minor</span></td><td><strong style="color:var(--high)">7.5</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="8"><td>8</td><td>Transactions stored as plaintext JSON</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-moderate">Moderate</span></td><td><strong style="color:var(--high)">7.0</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="9"><td>9</td><td>Preload bypasses contextBridge</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--high)">7.0</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="10"><td>10</td><td>Deep-link CSRF bypass</td><td><span class="badge badge-high">High</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--high)">7.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="11"><td>11</td><td>HTTPS not enforced in dev mode</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--medium)">5.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="12"><td>12</td><td>No certificate pinning</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-minor">Minor</span></td><td><strong style="color:var(--medium)">5.0</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="13"><td>13</td><td>Incomplete openItem file-type blocklist</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--medium)">4.5</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="14"><td>14</td><td>No IPC rate limiting</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-low">Low</span></td><td><span class="usability-badge usability-none">None</span></td><td><strong style="color:var(--medium)">4.0</strong></td><td><span class="status-badge status-done">Fixed</span></td></tr>
+        <tr data-id="15"><td>15</td><td>No data deletion / retention controls</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-moderate">Moderate</span></td><td><strong style="color:var(--medium)">4.0</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+        <tr data-id="16"><td>16</td><td>Legacy decryption uses deprecated API</td><td><span class="badge badge-medium">Medium</span></td><td><span class="complexity-badge complexity-medium">Medium</span></td><td><span class="usability-badge usability-minor">Minor</span></td><td><strong style="color:var(--medium)">3.5</strong></td><td><span class="status-badge status-pending">Pending</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title" style="color: var(--critical);">Critical Vulnerabilities</h2>
+
+  <div class="finding open">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-critical">1</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Hardcoded Encryption Password</div>
+        <div class="finding-file">packages/main/src/backend/configManager/encryption/crypto.ts:17</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-critical">Critical</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The encryption key that protects ALL user data (bank passwords, card numbers, API tokens) is derived using a hardcoded string <code>'moneymoney'</code>. Since the source code is public on GitHub, anyone who obtains a user's encrypted config file can decrypt it immediately.</p>
+        <div class="code-block">function deriveKey(salt: string): Buffer {
+  return crypto.scryptSync(salt, 'moneymoney', 32);  // hardcoded password!
+}</div>
+      </div>
+      <div class="finding-section">
+        <h4>Attack Scenario</h4>
+        <p>1. Malware, a malicious app, or another user on the same machine reads the config.encrypt file from %AppData%.<br>2. Attacker reads the salt from the OS keychain (if they have user-level access) or brute-forces it.<br>3. Using the known password <code>'moneymoney'</code> + salt, they decrypt all bank credentials instantly.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-medium">Medium</span></p>
+          <p class="detail">Replace the hardcoded string with a randomly generated key stored in OS keychain (keytar). Requires a migration step that re-encrypts existing configs on first launch. Estimated: 1-2 days of development + testing.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-minor">Minor</span></p>
+          <p class="detail">Users won't notice any difference. The migration happens transparently on app startup. Only edge case: if a user manually copies their config file to another machine, they'll need to re-enter credentials.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--critical); font-weight: 700;">Complete credential theft</p>
+          <p class="detail">An attacker with file access to the user's machine can steal all Israeli bank login credentials, potentially draining bank accounts.</p>
+        </div>
+      </div>
+      <div class="recommendation"><strong>Recommendation:</strong> Generate a random 32-byte key on first run, store it in keytar. On upgrade, decrypt with old method, re-encrypt with new key, and delete old config. The scrypt salt should also be random and unique per config.</div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-critical">2</div>
+      <div class="finding-title-area">
+        <div class="finding-title">No Content Security Policy (CSP)</div>
+        <div class="finding-file">packages/renderer/index.html + security-restrictions.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-critical">Critical</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The renderer's HTML has no Content Security Policy. CSP is the last line of defense against XSS (cross-site scripting) attacks. Without it, if any injected or malicious JavaScript runs in the renderer, it has unrestricted access to all IPC calls &mdash; including <code>getConfig</code> which returns all bank credentials.</p>
+        <div class="code-block">&lt;!-- Current index.html: NO CSP at all --&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;!-- Missing: &lt;meta http-equiv="Content-Security-Policy" ...&gt; --&gt;
+&lt;/head&gt;</div>
+      </div>
+      <div class="finding-section">
+        <h4>Attack Scenario</h4>
+        <p>A compromised npm dependency injects a small script during build. Without CSP, this script runs in the renderer, calls <code>getConfig()</code> via IPC, receives all bank credentials in JSON, and sends them to an external server.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-low">Low</span></p>
+          <p class="detail">Add a single <code>&lt;meta&gt;</code> tag to index.html. The CSP should allow <code>'self'</code> for scripts and restrict <code>connect-src</code> to the Base44 API domain. Estimated: 2-4 hours including testing.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">Users will not notice any change. CSP is invisible. The only consideration is if inline styles need <code>'unsafe-inline'</code> in the style-src directive (Bootstrap may require this).</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--critical); font-weight: 700;">XSS to full credential theft</p>
+          <p class="detail">Any XSS vulnerability (even from a supply chain attack on an npm package) gives the attacker access to all financial credentials and transaction history.</p>
+        </div>
+      </div>
+      <div class="recommendation"><strong>Recommendation:</strong> Add to index.html:<br><code>&lt;meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://moneym.base44.app; img-src 'self' data:; object-src 'none';"&gt;</code></div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-critical">3</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Chromium Sandbox Disabled</div>
+        <div class="finding-file">packages/main/src/mainWindow.ts:31</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-critical">Critical</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The Chromium sandbox is explicitly set to <code>false</code>. The sandbox is one of Electron's most important security features &mdash; it prevents the renderer process from accessing the filesystem, spawning processes, or using Node.js APIs directly.</p>
+        <div class="code-block">webPreferences: {
+  nodeIntegration: false,
+  contextIsolation: true,
+  sandbox: false,  // "Sandbox disabled because the demo of preload script
+                   //  depend on the Node.js api" &lt;-- leftover from template!
+  webviewTag: false,
+}</div>
+      </div>
+      <div class="finding-section">
+        <h4>Attack Scenario</h4>
+        <p>Without the sandbox, a renderer exploit (via XSS, malicious dependency, or Chromium vulnerability) can access Node.js APIs. This means the attacker can read/write any file, execute system commands, and completely take over the machine.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-low">Low</span></p>
+          <p class="detail">Change <code>sandbox: false</code> to <code>sandbox: true</code>. The preload script already uses IPC properly and should work with sandbox enabled. Needs testing to confirm. Estimated: 2-4 hours.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">Zero user-facing change. The sandbox is a background security boundary. If the preload script correctly uses <code>ipcRenderer</code> (which it does), everything continues to work identically.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--critical); font-weight: 700;">Full system compromise</p>
+          <p class="detail">A single renderer exploit goes from "can read page content" to "can execute arbitrary code on the user's operating system." This is the difference between a contained and uncontained breach.</p>
+        </div>
+      </div>
+      <div class="recommendation"><strong>Recommendation:</strong> Set <code>sandbox: true</code> in mainWindow.ts. Test that all IPC calls still work. If the preload needs Node.js APIs that sandbox blocks, refactor those calls to go through IPC to the main process.</div>
+    </div>
+  </div>
+
+  <div class="finding open">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-critical">4</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Unsigned Auto-Updates</div>
+        <div class="finding-file">electron-builder.yml + packages/main/src/handlers/updater.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-critical">Critical</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The app downloads and installs updates automatically from GitHub without any code signing or cryptographic signature verification. The build config has no signing certificate, and the updater code doesn't validate signatures.</p>
+        <div class="code-block">// updater.ts
+autoUpdater.autoDownload = true;         // auto-downloads updates
+autoUpdater.autoInstallOnAppQuit = true; // auto-installs on restart
+// No signature verification configured
+
+// electron-builder.yml
+publish:
+  - provider: github
+// No certificateFile or signing config</div>
+      </div>
+      <div class="finding-section">
+        <h4>Attack Scenario</h4>
+        <p>A man-in-the-middle attacker (on the user's WiFi, corporate network, or ISP level) intercepts the update download from GitHub and replaces it with a malicious installer. The app installs it without verification. The malicious version steals all bank credentials on next launch.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-high">High</span></p>
+          <p class="detail">Requires purchasing a Windows code signing certificate (~$200-400/year), setting up the signing pipeline in CI/CD, and configuring electron-updater to verify signatures. Estimated: 2-4 days including certificate procurement and CI setup.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">Users will actually see a <em>better</em> experience: Windows SmartScreen warnings will disappear for signed apps, making the install smoother. Updates continue to work the same way.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--critical); font-weight: 700;">Complete app takeover</p>
+          <p class="detail">Attacker can replace the entire application binary, gaining persistent access to all user data and the ability to execute arbitrary code on the user's machine.</p>
+        </div>
+      </div>
+      <div class="recommendation"><strong>Recommendation:</strong> Purchase a code signing certificate (e.g., from DigiCert, Sectigo). Configure electron-builder to sign both the installer and the update. electron-updater will automatically verify signatures when the build is signed. Until then, consider disabling <code>autoDownload</code> and prompting the user to download from the GitHub releases page directly.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title" style="color: var(--high);">High Vulnerabilities</h2>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">5</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Bank Credentials Sent to Renderer via IPC</div>
+        <div class="finding-file">packages/main/src/handlers/configHandlers.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What Was Wrong</h4>
+        <p>The <code>getConfig</code> IPC handler sent the entire decrypted config object to the renderer &mdash; including bank login credentials (usernames, passwords, card numbers), YNAB tokens, and Google OAuth tokens. The renderer process should never have access to raw credentials.</p>
+        <div class="code-block">// BEFORE (vulnerable):
+export async function getConfigHandler(): Promise&lt;string&gt; {
+  const config = await getConfig();
+  return JSON.stringify({ config });  // ALL credentials included!
+}</div>
+      </div>
+      <div class="finding-section">
+        <h4>How It Was Fixed</h4>
+        <p>Three-pronged approach: (1) <code>sanitizeConfigForRenderer()</code> strips all <code>loginFields</code>, YNAB tokens, and Google credentials before sending config to the renderer, replacing them with a <code>hasCredentials</code> boolean flag. (2) <code>updateConfigHandler()</code> now performs a credential-preserving merge &mdash; incoming credential-stripped config is merged with the disk config so auto-save never destroys credentials. (3) A dedicated <code>updateImporterCredentials</code> IPC handler lets the EditImporter form send credentials directly to the main process without entering the MobX store. A config-file mutex prevents race conditions between concurrent writes.</p>
+        <div class="code-block">// AFTER (fixed):
+function sanitizeConfigForRenderer(config: Config): Config {
+  const sanitized = structuredClone(config);
+  for (const account of sanitized.scraping.accountsToScrape) {
+    account.hasCredentials = Object.values(account.loginFields).some((v) =&gt; v.length &gt; 0);
+    account.loginFields = {};  // credentials never reach renderer
+  }
+  return sanitized;
+}
+
+// Dedicated credential write — bypasses renderer MobX store entirely
+export async function updateImporterCredentialsHandler(_, accountId, loginFieldsStr) {
+  return withConfigLock(async () =&gt; {
+    const config = await getConfig();
+    const account = config.scraping.accountsToScrape.find((a) =&gt; a.id === accountId);
+    account.loginFields = JSON.parse(loginFieldsStr);
+    await updateConfig(configFilePath, config);
+  });
+}</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-medium">Medium</span></p>
+          <p class="detail">Required changes across 9 files: main handlers, preload bridge, type definitions (3 files kept in sync), MobX store, and EditImporter UI component.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-minor">Minor</span></p>
+          <p class="detail">Account settings now show empty credential fields with a &ldquo;credentials saved&rdquo; indicator instead of pre-filled passwords. Users only need to enter credentials when making changes.</p>
+        </div>
+        <div class="info-box">
+          <h5>Residual Risk</h5>
+          <p style="color: var(--green); font-weight: 700;">Mitigated</p>
+          <p class="detail">Renderer never receives raw credentials. New account creation briefly holds user-typed credentials in MobX (acceptable &mdash; already in DOM). Existing account credentials never enter renderer memory.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">6</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Renderer Can Inject Scrape Configuration</div>
+        <div class="finding-file">packages/main/src/handlers/index.ts:141-149</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The <code>scrape</code> IPC handler accepts an optional Config object directly from the renderer, including bank credentials. A compromised renderer could send modified credentials pointing to an attacker-controlled fake banking site.</p>
+        <div class="code-block">ipcMain.on('scrape', async (event, configFromRenderer?: Config) =&gt; {
+  const config = configFromRenderer || (await getConfig());
+  // Uses config credentials to log into banks...
+});</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-low">Low</span></p>
+          <p class="detail">Remove the <code>configFromRenderer</code> parameter. Always load config from disk in the main process. Estimated: 2-4 hours.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">No user-facing change. The config is always loaded from disk anyway when no parameter is provided. The renderer just needs to save config first, then trigger scrape.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--high); font-weight: 700;">Credential redirect attack</p>
+          <p class="detail">Attacker could redirect bank login to a phishing server that captures real credentials mid-scrape.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">7</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Sensitive Data in Plaintext Log Files</div>
+        <div class="finding-file">packages/main/src/backend/eventEmitters/loggerEmitter.ts:9-11</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The logger emitter logs ALL event data (including full transaction objects with amounts, descriptions, and account numbers) to plaintext log files on disk. The <code>getLogsInfo</code> IPC handler then makes these logs available to the renderer.</p>
+        <div class="code-block">loggerEmitter.onAny((eventName, eventData) =&gt; {
+  logger.info(`${eventName}:`, eventData);  // Logs EVERYTHING
+});</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-medium">Medium</span></p>
+          <p class="detail">Add a sanitization layer that redacts sensitive fields (transaction details, account numbers, credential errors) before logging. Create an allowlist of safe-to-log fields. Estimated: 1 day.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-minor">Minor</span></p>
+          <p class="detail">The logs viewer in the app will show less detail. Debugging will require looking at log files directly (which is rare for end users). Transaction counts and status will still be logged.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--high); font-weight: 700;">Financial history exposure</p>
+          <p class="detail">Anyone with access to the log files can see the user's complete transaction history &mdash; amounts, merchants, dates, and partial account numbers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">8</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Transactions Stored as Plaintext JSON</div>
+        <div class="finding-file">packages/main/src/backend/export/outputVendors/json/json.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>All scraped transactions (dates, amounts, merchant names, categories, account numbers) are saved as a human-readable JSON file with default file permissions. Any program or user on the machine can read the complete financial history.</p>
+        <div class="code-block">await fs.writeFile(filePath, JSON.stringify(sorted, null, 4));
+// Result: a plaintext file like:
+// { "date": "2026-04-01", "description": "Supermarket", "amount": -450.00, "accountNumber": "12345678" }</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-medium">Medium</span></p>
+          <p class="detail">Encrypt the JSON file using the same encryption module (after fixing Finding #1). The file would be decrypted only when needed (for Base44 sync or viewing). Estimated: 1-2 days. Alternative: use OS-level file permissions to restrict access (simpler but less secure).</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-moderate">Moderate</span></p>
+          <p class="detail"><strong>This is the biggest usability tradeoff.</strong> Currently, users can open the JSON file in any text editor or import it into Excel/spreadsheets. Encryption would break this workflow. Consider offering both encrypted (default) and plaintext (opt-in with warning) export modes.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--high); font-weight: 700;">Financial privacy breach</p>
+          <p class="detail">Malware, other users on a shared computer, or a stolen laptop exposes the user's entire financial transaction history.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">9</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Preload Script Bypasses contextBridge</div>
+        <div class="finding-file">packages/preload/src/eventsBridge.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The preload script directly imports and uses <code>electron.ipcRenderer</code> and <code>electron.shell</code> without wrapping them through <code>contextBridge.exposeInMainWorld()</code>. This is the Electron-recommended pattern for exposing safe APIs. The current approach, combined with <code>sandbox: false</code>, means the renderer has broader access to Electron internals than intended.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-medium">Medium</span></p>
+          <p class="detail">Wrap all exports with <code>contextBridge.exposeInMainWorld('api', { ... })</code> and update the renderer to use <code>window.api.*</code> instead of direct imports. Note: the project uses <code>unplugin-auto-expose</code> which may handle this partially. Estimated: 1-2 days including renderer updates.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">Zero user-facing change. This is purely an internal refactor of how the preload exposes APIs.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--high); font-weight: 700;">Expanded attack surface</p>
+          <p class="detail">The renderer has access to more Electron APIs than necessary, increasing the blast radius of any XSS vulnerability.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-high">10</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Deep-Link CSRF Bypass (Optional State Parameter)</div>
+        <div class="finding-file">packages/main/src/backend/auth/base44Token.ts:26</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-high">High</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The deep-link CSRF protection treats the <code>state</code> parameter as optional. If the attacker sends <code>moneymoney://auth?token=ATTACKER_TOKEN</code> (without a <code>state</code> param), the validation passes as long as the user clicked "Connect" within the last 5 minutes.</p>
+        <div class="code-block">export function validateAuthNonce(state: string | null): boolean {
+  if (!pendingAuthNonce) return false;
+  // ...
+  if (state && state !== pendingAuthNonce.nonce) return false;
+  //  ^ If state is null/undefined, this check is SKIPPED entirely!
+  pendingAuthNonce = null;
+  return true;
+}</div>
+      </div>
+      <div class="finding-section">
+        <h4>Attack Scenario</h4>
+        <p>1. User clicks "Connect to MoneyMoney" in the app (generates nonce).<br>2. Within 5 minutes, attacker tricks user into clicking a malicious link: <code>moneymoney://auth?token=ATTACKER_TOKEN</code>.<br>3. The nonce exists and state is absent, so validation passes.<br>4. The attacker's token is saved &mdash; all future syncs send the user's financial data to the attacker's account.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box">
+          <h5>Fix Complexity</h5>
+          <p><span class="complexity-badge complexity-low">Low</span></p>
+          <p class="detail">One-line fix: change <code>if (state &amp;&amp; state !== pendingAuthNonce.nonce)</code> to <code>if (!state || state !== pendingAuthNonce.nonce)</code>. This makes the state parameter mandatory. Estimated: 30 minutes including testing.</p>
+        </div>
+        <div class="info-box">
+          <h5>Usability Impact</h5>
+          <p><span class="usability-badge usability-none">None</span></p>
+          <p class="detail">The Base44 website already sends the state parameter back. This fix only rejects malicious deep links that omit the state &mdash; the legitimate flow is unaffected.</p>
+        </div>
+        <div class="info-box">
+          <h5>Risk if Not Fixed</h5>
+          <p style="color: var(--high); font-weight: 700;">Token injection / data redirect</p>
+          <p class="detail">An attacker can hijack the user's Base44 connection and redirect their financial data to an account the attacker controls.</p>
+        </div>
+      </div>
+      <div class="recommendation"><strong>Recommendation (one-line fix):</strong><br><code>if (!state || state !== pendingAuthNonce.nonce) return false;</code></div>
+    </div>
+  </div>
+
+  <h2 class="section-title" style="color: var(--medium);">Medium Vulnerabilities</h2>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">11</div>
+      <div class="finding-title-area">
+        <div class="finding-title">HTTPS Not Enforced in Development Mode</div>
+        <div class="finding-file">packages/main/src/backend/export/outputVendors/json/json.ts:50-54</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The HTTPS check for Base44 API calls is skipped in development mode. If a dev build is accidentally used in production, or the Base44 URL is changed to HTTP, Bearer tokens and financial data are sent unencrypted.</p>
+        <div class="code-block">if (urlObj.protocol !== 'https:' && !import.meta.env.DEV) {
+  reject(new Error('BASE44 URL must use HTTPS'));
+  // Skipped entirely in DEV mode!
+}</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-low">Low</span></p><p class="detail">Remove the <code>!import.meta.env.DEV</code> condition. Always enforce HTTPS. Use <code>localhost</code> exception if needed for local testing. Estimated: 1 hour.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-none">None</span></p><p class="detail">No impact on users. Only affects developers who might want to test with HTTP locally (they can use localhost exception).</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">Token interception in dev</p><p class="detail">Bearer tokens sent over unencrypted HTTP can be captured by network sniffers.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">12</div>
+      <div class="finding-title-area">
+        <div class="finding-title">No Certificate Pinning for API Calls</div>
+        <div class="finding-file">packages/main/src/backend/export/outputVendors/json/json.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>API calls to Base44 use standard HTTPS without certificate pinning. A compromised Certificate Authority, a corporate SSL-inspection proxy, or a sophisticated MitM attack could intercept the HTTPS traffic.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-medium">Medium</span></p><p class="detail">Implement certificate pinning by storing the expected certificate fingerprint and validating it on each request. Needs updating when the server certificate rotates. Estimated: 1 day.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-minor">Minor</span></p><p class="detail">Users behind corporate SSL-inspection proxies won't be able to sync to Base44. These users would need a bypass option (with warning).</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">MitM token theft</p><p class="detail">Sophisticated attacker on the network can steal Bearer tokens and financial data.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">13</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Incomplete File Type Blocklist in openItem</div>
+        <div class="finding-file">packages/preload/src/eventsBridge.ts:54 (moved to handlers/index.ts)</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>The <code>openItem</code> function blocks common dangerous extensions but misses <code>.lnk</code> (Windows shortcuts that can execute anything), <code>.pif</code>, <code>.jar</code>, and doesn't check for path traversal (<code>..</code>).</p>
+        <div class="code-block">const dangerous = /\.(exe|bat|cmd|com|msi|ps1|vbs|js|wsf|scr)$/i;
+// Missing: .lnk, .pif, .jar, .py, .rb
+// No path traversal check for ".."</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-low">Low</span></p><p class="detail">Add missing extensions to the regex and add a path traversal check. Estimated: 1 hour.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-none">None</span></p><p class="detail">The app only opens log folders and data directories. No legitimate use case involves opening .lnk or .jar files.</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">Code execution via crafted path</p><p class="detail">If an attacker can influence the file path (e.g., via manipulated config), they could execute arbitrary code.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding resolved">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">14</div>
+      <div class="finding-title-area">
+        <div class="finding-title">No Rate Limiting on IPC Handlers</div>
+        <div class="finding-file">packages/main/src/handlers/index.ts</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span><span class="status-badge status-done">Fixed</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>IPC handlers like <code>testBase44Connection</code>, <code>checkForUpdate</code>, and <code>scrape</code> have no rate limiting. A compromised renderer can spam these calls, causing DoS against external APIs or degrading performance.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-low">Low</span></p><p class="detail">Add simple debounce/throttle for API-calling handlers. Estimated: 2-4 hours.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-none">None</span></p><p class="detail">Rate limits would be set well above normal usage patterns (e.g., max 1 scrape per minute). No user would hit them during normal use.</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">DoS / API abuse</p><p class="detail">Compromised renderer could spam bank scraping or API calls.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">15</div>
+      <div class="finding-title-area">
+        <div class="finding-title">No Data Deletion or Retention Controls</div>
+        <div class="finding-file">Multiple files</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>There is no way for users to delete their transaction history, set a retention period, or completely wipe their data from the app. Transactions accumulate forever in the plaintext JSON file. Base44 token can be cleared, but local financial data cannot.</p>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-medium">Medium</span></p><p class="detail">Add "Delete All Data" button in settings that removes transaction files, clears config, and removes keytar entries. Optionally add auto-purge setting (e.g., "keep last 6 months"). Estimated: 1-2 days.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-moderate">Moderate</span></p><p class="detail">This is a <em>positive</em> usability improvement. Users gain control over their data. The deletion should require confirmation to prevent accidental data loss.</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">Privacy / compliance</p><p class="detail">Users cannot exercise their right to delete personal financial data. Growing data increases exposure risk.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="finding-number num-medium">16</div>
+      <div class="finding-title-area">
+        <div class="finding-title">Legacy Decryption Uses Deprecated API</div>
+        <div class="finding-file">packages/main/src/backend/configManager/encryption/crypto.ts:51</div>
+      </div>
+      <div class="finding-badges"><span class="badge badge-medium">Medium</span></div>
+      <div class="finding-toggle">&#9660;</div>
+    </div>
+    <div class="finding-body">
+      <div class="finding-section">
+        <h4>What's Wrong</h4>
+        <p>Old config files encrypted with the legacy format use <code>crypto.createDecipher()</code>, which is deprecated in Node.js because it uses MD5-based key derivation (very weak). New configs use the v2 format with proper scrypt + IV, but the legacy path remains for backward compatibility.</p>
+        <div class="code-block">// Legacy fallback: old format encrypted with crypto.createDecipher
+const decipher = crypto.createDecipher(ALGORITHM, salt);  // DEPRECATED!</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-box"><h5>Fix Complexity</h5><p><span class="complexity-badge complexity-medium">Medium</span></p><p class="detail">Add auto-migration: when a legacy config is detected, decrypt it with the old method, re-encrypt with v2, and save. After a few releases, remove the legacy code path entirely. Estimated: 1 day.</p></div>
+        <div class="info-box"><h5>Usability Impact</h5><p><span class="usability-badge usability-minor">Minor</span></p><p class="detail">Transparent migration on app start. Only affects users who haven't opened the app in a long time (still using legacy config format). They may see a brief delay on first launch.</p></div>
+        <div class="info-box"><h5>Risk if Not Fixed</h5><p style="color: var(--medium); font-weight: 700;">Weak encryption for old users</p><p class="detail">Users with old config files have their credentials protected by weak MD5-based key derivation.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="good-practices">
+    <h2>What's Done Well</h2>
+    <ul class="good-list">
+      <li><span class="check">&#10003;</span> <code>nodeIntegration: false</code> &mdash; Renderer cannot directly use Node.js APIs</li>
+      <li><span class="check">&#10003;</span> <code>contextIsolation: true</code> &mdash; Preload and renderer contexts are properly isolated</li>
+      <li><span class="check">&#10003;</span> <code>webviewTag: false</code> &mdash; Prevents webview injection attacks</li>
+      <li><span class="check">&#10003;</span> Navigation restricted to allowlisted origins only (security-restrictions.ts)</li>
+      <li><span class="check">&#10003;</span> Permission request handler blocks all non-allowlisted permissions</li>
+      <li><span class="check">&#10003;</span> Window open handler denies new windows and validates external links</li>
+      <li><span class="check">&#10003;</span> Deep-link nonce uses <code>crypto.randomBytes(32)</code> with 5-minute TTL</li>
+      <li><span class="check">&#10003;</span> Base44 Bearer token stored in OS keychain (keytar), not in config file</li>
+      <li><span class="check">&#10003;</span> Proxy URL sanitization exists to prevent credential leakage in logs</li>
+    </ul>
+  </div>
+
+  <div class="roadmap">
+    <h2>Recommended Fix Roadmap</h2>
+
+    <div class="phase">
+      <div class="phase-title">
+        <span class="phase-num">1</span>
+        Quick Wins (1-2 days total, zero usability impact)
+      </div>
+      <ul class="phase-items">
+        <li><strong>#2</strong> Add Content Security Policy &mdash; single meta tag in index.html</li>
+        <li><strong>#3</strong> Enable sandbox &mdash; change <code>false</code> to <code>true</code></li>
+        <li><strong>#10</strong> Fix deep-link CSRF &mdash; one-line change to require state param</li>
+        <li><strong>#6</strong> Remove config parameter from scrape handler &mdash; always load from disk</li>
+        <li><strong>#11</strong> Enforce HTTPS always &mdash; remove DEV exception</li>
+        <li><strong>#13</strong> Add missing file types to openItem blocklist</li>
+        <li><strong>#14</strong> Add basic rate limiting to sensitive IPC handlers</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-title">
+        <span class="phase-num">2</span>
+        Core Security (3-5 days, minor usability changes)
+      </div>
+      <ul class="phase-items">
+        <li><strong>#5</strong> <s>Filter credentials out of getConfig response to renderer</s> &check; Done</li>
+        <li><strong>#7</strong> Sanitize logger output &mdash; redact transaction details and credentials from logs</li>
+        <li><strong>#1</strong> Replace hardcoded encryption password with keytar-stored random key</li>
+        <li><strong>#9</strong> Wrap preload APIs with contextBridge.exposeInMainWorld()</li>
+        <li><strong>#16</strong> Auto-migrate legacy encrypted configs to v2 format</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-title">
+        <span class="phase-num">3</span>
+        Advanced Hardening (5-10 days, requires planning)
+      </div>
+      <ul class="phase-items">
+        <li><strong>#4</strong> Set up code signing certificate and signed auto-updates</li>
+        <li><strong>#8</strong> Encrypt transaction export files at rest (with opt-out for power users)</li>
+        <li><strong>#15</strong> Add data deletion UI and optional retention policy</li>
+        <li><strong>#12</strong> Implement certificate pinning for Base44 API</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  MoneyMoney Security Audit &mdash; Confidential
+</div>
+
+<script>
+  // All findings start collapsed except criticals
+  document.querySelectorAll('.finding').forEach(f => {
+    if (!f.querySelector('.num-critical')) {
+      f.classList.remove('open');
+    }
+  });
+
+  // Compute progress from matrix rows
+  (function updateProgress(){
+    const rows = document.querySelectorAll('.matrix-table tr[data-id]');
+    const total = rows.length;
+    let done = 0;
+    rows.forEach(r => { if (r.querySelector('.status-done')) done++; });
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const fill = document.getElementById('progressFill');
+    const txt = document.getElementById('progressText');
+    if (fill) fill.style.width = pct + '%';
+    if (txt) txt.textContent = `${done} / ${total} fixed (${pct}%)`;
+  })();
+</script>
+
+</body>
+</html>

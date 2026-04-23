@@ -64,6 +64,7 @@ Communication flow: **Renderer** ↔ **Preload** (contextBridge) ↔ **Main** (i
 - `backend/export/outputVendors/` — Plugin-style exporters — only JSON is active (CSV, Google Sheets, YNAB code exists but is disabled in `index.ts`). Each implements the `OutputVendor` interface from `commonTypes.ts`
 - `backend/eventEmitters/` — `BudgetTrackingEventEmitter` for real-time scraping progress events
 - `handlers/` — IPC handler registration (bridges preload calls to backend)
+- `handlers/configHandlers.ts` — Config read/write with **credential isolation**: `getConfigHandler` strips `loginFields` before sending to renderer (replaces with `hasCredentials` boolean); `updateConfigHandler` merges incoming credential-stripped config with disk config preserving credentials; `updateImporterCredentials` is a dedicated IPC for credential writes that bypass the renderer's MobX store. A config-file mutex serializes concurrent writes.
 - `config/base44.ts` — Default Base44/MoneyMoney API configuration (hardcoded shared app-level URL + API key)
 
 ### Renderer Key Modules

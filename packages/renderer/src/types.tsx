@@ -90,6 +90,8 @@ export interface AccountToScrapeConfig {
   name: string;
   loginFields: Record<string, string>;
   active?: boolean;
+  /** Computed by main when sending config to renderer. Never persisted to disk. */
+  hasCredentials?: boolean;
 }
 
 export enum CompanyTypes {
@@ -198,6 +200,7 @@ export interface Account {
 
 export interface Importer extends Account {
   loginFields: Record<string, string>;
+  hasCredentials?: boolean;
 }
 
 export interface Exporter extends Account {

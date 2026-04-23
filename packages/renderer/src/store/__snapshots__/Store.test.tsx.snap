@@ -30,6 +30,7 @@ exports[`Store > Properties and getters > importers 1`] = `
   "active": true,
   "companyId": "discount",
   "displayName": "דיסקונט",
+  "hasCredentials": undefined,
   "id": "efsvxasgd416f94d1e45a9cfc8c0a95f",
   "loginFields": {
     "id": "234234134",
@@ -48,6 +49,7 @@ exports[`Store > Properties and getters > importers 2`] = `
   "active": true,
   "companyId": "visaCal",
   "displayName": "ויזה כאל",
+  "hasCredentials": undefined,
   "id": "794a9ksj532d86cb4xxxb3438d0da942",
   "loginFields": {
     "password": "somePassword",
@@ -65,6 +67,7 @@ exports[`Store > Properties and getters > importers 3`] = `
   "active": true,
   "companyId": "max",
   "displayName": "Max",
+  "hasCredentials": undefined,
   "id": "9xve2485ac202f53f85bcdb4f795dssc",
   "loginFields": {
     "password": "greatPass",

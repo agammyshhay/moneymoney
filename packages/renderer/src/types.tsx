@@ -139,18 +139,22 @@ export class BudgetTrackingEvent {
 
   accountType?: AccountType;
 
+  errorType?: string;
+
   constructor({
     message,
     vendorId,
     error,
     accountType,
     accountStatus = AccountStatus.IN_PROGRESS,
+    errorType,
   }: BudgetTrackingEvent) {
     this.message = message;
     this.vendorId = vendorId;
     this.error = error;
     this.accountType = accountType;
     this.accountStatus = accountStatus;
+    this.errorType = errorType;
   }
 }
 
@@ -167,6 +171,7 @@ export interface EnrichedTransaction extends Transaction {
   accountNumber: string;
   category?: string;
   hash: string;
+  companyId?: string;
 }
 
 export interface ExporterEvent extends BudgetTrackingEvent {
@@ -182,9 +187,15 @@ export interface ExporterEndEvent extends ExporterEvent {
 // End of common types
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export type LogSeverity = 'info' | 'success' | 'warn' | 'error';
+
 export interface Log {
   message: string;
   originalEvent?: BudgetTrackingEvent;
+  /** ISO timestamp of when this log entry was recorded. */
+  timestamp?: string;
+  errorType?: string;
+  severity?: LogSeverity;
 }
 
 export interface Account {

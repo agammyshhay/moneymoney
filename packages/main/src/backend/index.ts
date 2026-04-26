@@ -66,11 +66,13 @@ export async function scrapeAndUpdateOutputVendors(config: Config, optionalEvent
     );
   } catch (e) {
     logger.error('Scraping or export failed', e);
+    const err = e as Error & { errorType?: string };
     await eventPublisher.emit(
       EventNames.GENERAL_ERROR,
       new Events.BudgetTrackingEvent({
-        message: (e as Error).message,
-        error: e as Error,
+        message: err.message,
+        error: err,
+        errorType: err.errorType,
       }),
     );
     throw e;

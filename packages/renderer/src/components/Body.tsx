@@ -266,7 +266,13 @@ const Body = () => {
         >
           <Modal.Header closeButton className={styles.modalHeader}></Modal.Header>
           <Modal.Body>
-            {modalStatus === ModalStatus.LOGS && currentAccount && <AccountLogs logs={currentAccount.logs} />}
+            {modalStatus === ModalStatus.LOGS && currentAccount && (
+              <AccountLogs
+                logs={currentAccount.logs}
+                vendorId={currentAccount.companyId}
+                accountStatus={currentAccount.status}
+              />
+            )}
             {modalStatus === ModalStatus.IMPORTER_SETTINGS && currentAccount && (
               <EditImporter
                 handleSave={updateImporter}

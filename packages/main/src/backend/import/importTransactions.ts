@@ -118,13 +118,14 @@ export async function scrapeFinancialAccountsAndFetchTransactions(
 
 function buildImporterEvent(
   accountConfig: AccountToScrapeConfig,
-  additionalParams: { message: string; error?: Error; status?: AccountStatus },
+  additionalParams: { message: string; error?: Error; status?: AccountStatus; errorType?: string },
 ) {
   return new ImporterEvent({
     message: additionalParams.message,
     importerKey: accountConfig.key,
     error: additionalParams.error,
     status: additionalParams.status,
+    errorType: additionalParams.errorType,
   });
 }
 
@@ -183,7 +184,9 @@ async function fetchTransactions(
       chromePath,
     );
     if (!scrapeResult.success) {
-      throw new Error(`${scrapeResult.errorType}: ${scrapeResult.errorMessage}`);
+      const err = new Error(scrapeResult.errorMessage ?? scrapeResult.errorType ?? 'Unknown scraper error');
+      (err as Error & { errorType?: string }).errorType = scrapeResult.errorType;
+      throw err;
     }
 
     const transactions = await postProcessTransactions(account, scrapeResult);
@@ -197,12 +200,14 @@ async function fetchTransactions(
 
     return transactions;
   } catch (e) {
+    const err = e as Error & { errorType?: string };
     await eventPublisher.emit(
       EventNames.IMPORTER_ERROR,
       buildImporterEvent(account, {
-        message: (e as Error).message,
-        error: e as Error,
+        message: err.message,
+        error: err,
         status: AccountStatus.ERROR,
+        errorType: err.errorType,
       }),
     );
     logger.error('Failed to fetch transactions', e);
@@ -236,6 +241,7 @@ function enrichTransaction(transaction: Transaction, companyId: string, accountN
   const enrichedTransaction: EnrichedTransaction = {
     ...transaction,
     accountNumber,
+    companyId,
     // category,
     hash,
   };

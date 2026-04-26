@@ -176,6 +176,8 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
+  margin-inline-end: auto;
+  min-width: 0;
 }
 
 .dateText {
@@ -191,6 +193,48 @@
   line-height: 1.2;
 }
 
+.headlineText {
+  font-size: 0.78rem;
+  color: #5f6368;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+/* Status Pill */
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.statusPill i {
+  font-size: 0.85rem;
+}
+
+.pillSuccess {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.pillWarn {
+  background-color: #fef7e0;
+  color: #b06000;
+}
+
+.pillError {
+  background-color: #fce8e6;
+  color: #d93025;
+}
+
 /* Transaction Badge */
 .txBadge {
   display: inline-flex;
@@ -202,7 +246,6 @@
   font-size: 0.82rem;
   font-weight: 500;
   white-space: nowrap;
-  margin-inline-end: auto;
 }
 
 /* Error Count */
@@ -312,15 +355,26 @@
 .errorItem {
   font-size: 0.85rem;
   color: #3c4043;
-  margin-bottom: 3px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #fce8e6;
 }
 
 .errorItem:last-child {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
-.errorVendor {
-  font-weight: 600;
+.errorItemTitle {
+  font-weight: 500;
+  color: #3c4043;
+  margin-bottom: 1px;
+}
+
+.errorItemHint {
+  font-size: 0.8rem;
+  color: #5f6368;
 }
 
 /* Empty State */

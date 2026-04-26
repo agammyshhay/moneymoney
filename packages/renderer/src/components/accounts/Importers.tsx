@@ -50,7 +50,7 @@ export function getActionButtons(
   const logsActionButton: ActionButton = {
     icon: 'bi-journal-text',
     clickHandler: () => showModal(account, ModalStatus.LOGS),
-    tooltipText: 'לוגים',
+    tooltipText: 'פעילות החשבון',
   };
 
   const accountSettingsActionButton: ActionButton = {

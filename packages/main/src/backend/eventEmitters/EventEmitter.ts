@@ -45,18 +45,23 @@ export class BudgetTrackingEvent {
 
   accountType?: AccountType;
 
+  /** Categorized error code (scraper enum, exporter category, etc.). Surfaced to the UI for friendly messages. */
+  errorType?: string;
+
   constructor({
     message,
     vendorId,
     error,
     accountType,
     accountStatus = AccountStatus.IN_PROGRESS,
+    errorType,
   }: BudgetTrackingEvent) {
     this.message = message;
     this.vendorId = vendorId;
     this.error = error;
     this.accountType = accountType;
     this.accountStatus = accountStatus;
+    this.errorType = errorType;
   }
 }
 
@@ -65,16 +70,18 @@ export interface ImporterEventParams {
   importerKey: CompanyTypes;
   error?: BudgetTrackingEvent['error'];
   status?: BudgetTrackingEvent['accountStatus'];
+  errorType?: string;
 }
 
 export class ImporterEvent extends BudgetTrackingEvent {
-  constructor({ message, importerKey, error, status }: ImporterEventParams) {
+  constructor({ message, importerKey, error, status, errorType }: ImporterEventParams) {
     super({
       message,
       vendorId: importerKey,
       error,
       accountType: AccountType.IMPORTER,
       accountStatus: status,
+      errorType,
     });
   }
 }
@@ -85,18 +92,20 @@ export interface ExporterEventParams {
   allTransactions: EnrichedTransaction[];
   status?: AccountStatus;
   error?: Error;
+  errorType?: string;
 }
 
 export class ExporterEvent extends BudgetTrackingEvent {
   allTransactions: EnrichedTransaction[];
 
-  constructor({ message, allTransactions, status, error, exporterName }: ExporterEventParams) {
+  constructor({ message, allTransactions, status, error, exporterName, errorType }: ExporterEventParams) {
     super({
       message,
       accountType: AccountType.EXPORTER,
       accountStatus: status,
       error,
       vendorId: exporterName,
+      errorType,
     });
     this.allTransactions = allTransactions;
   }

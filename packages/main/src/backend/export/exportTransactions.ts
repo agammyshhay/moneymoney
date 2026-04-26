@@ -59,12 +59,25 @@ export async function createTransactionsInExternalVendors(
         executionResult[outputVendor.name] = exportTransactionsResult;
       } catch (e) {
         logger.error('Failed to create transactions in external vendors', e);
+        const err = e as Error & { errorType?: string; statusCode?: number };
+        const msg = err.message ?? '';
+        let errorType = err.errorType;
+        if (!errorType) {
+          if (err.statusCode === 401 || err.statusCode === 403 || /\b(401|403|unauthor|forbidden)\b/i.test(msg)) {
+            errorType = 'BASE44_AUTH';
+          } else if (/ECONN|ENOTFOUND|ETIMEDOUT|fetch failed|network/i.test(msg)) {
+            errorType = 'BASE44_NETWORK';
+          } else {
+            errorType = 'EXPORT_GENERIC';
+          }
+        }
         await eventPublisher.emit(
           EventNames.EXPORTER_ERROR,
           new ExporterEvent({
-            message: (e as Error).message,
-            error: e as Error,
+            message: msg,
+            error: err,
             status: AccountStatus.ERROR,
+            errorType,
             ...baseEvent,
           }),
         );

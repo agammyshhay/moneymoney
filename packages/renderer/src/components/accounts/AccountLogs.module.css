@@ -1,0 +1,153 @@
+.container {
+  padding: 0.5rem 0.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #202124;
+}
+
+.headerTitle i {
+  color: #1a73e8;
+  font-size: 1.1rem;
+}
+
+.headerSubtitle {
+  font-size: 0.82rem;
+  color: #80868b;
+  white-space: nowrap;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: start;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: #f8f9fa;
+}
+
+.rowIcon {
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.rowTime {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  color: #5f6368;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.rowContent {
+  min-width: 0;
+}
+
+.rowMessage {
+  font-size: 0.92rem;
+  color: #3c4043;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.rowHint {
+  font-size: 0.82rem;
+  color: #5f6368;
+  margin-top: 2px;
+}
+
+.sevInfo {
+  background-color: #f8f9fa;
+  border-color: #e8eaed;
+}
+.sevInfo .rowIcon {
+  color: #5f6368;
+}
+
+.sevSuccess {
+  background-color: #e6f4ea;
+  border-color: #ceead6;
+}
+.sevSuccess .rowIcon {
+  color: #1e8e3e;
+}
+.sevSuccess .rowMessage {
+  color: #1e6b34;
+  font-weight: 500;
+}
+
+.sevWarn {
+  background-color: #fef7e0;
+  border-color: #feefc3;
+}
+.sevWarn .rowIcon {
+  color: #b06000;
+}
+.sevWarn .rowMessage {
+  color: #6f4500;
+  font-weight: 500;
+}
+
+.sevError {
+  background-color: #fff8f7;
+  border-color: #fce8e6;
+}
+.sevError .rowIcon {
+  color: #d93025;
+}
+.sevError .rowMessage {
+  color: #a50e0e;
+  font-weight: 500;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  gap: 8px;
+  color: #80868b;
+}
+
+.emptyIcon {
+  font-size: 40px;
+  color: #dadce0;
+}
+
+.runningHint {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5f6368;
+  font-size: 0.88rem;
+}

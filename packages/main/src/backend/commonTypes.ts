@@ -90,6 +90,8 @@ export interface EnrichedTransaction extends Transaction {
   accountNumber: string;
   category?: string;
   hash: string;
+  /** Source vendor / company id (e.g. 'hapoalim'). Used by the UI to label accounts with the bank's display name. */
+  companyId?: string;
 }
 
 export interface ExportTransactionsParams {

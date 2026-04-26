@@ -25,6 +25,11 @@
   color: #d93025;
 }
 
+.statusIconWarn {
+  background-color: #fef7e0;
+  color: #f9ab00;
+}
+
 .statusSection {
   margin-bottom: 1.5rem;
 }
@@ -32,6 +37,13 @@
 .statusTitle {
   font-weight: 600;
   color: #202124;
+  margin-bottom: 0.25rem;
+}
+
+.statusSubtitle {
+  margin: 0;
+  color: #5f6368;
+  font-size: 0.95rem;
 }
 
 /* Transactions Summary */
@@ -96,7 +108,26 @@
 }
 
 .errorItem {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #fce8e6;
+}
+
+.errorItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.errorItemTitle {
+  font-weight: 500;
+  color: #3c4043;
+  margin-bottom: 2px;
+}
+
+.errorItemHint {
+  font-size: 0.85rem;
+  color: #5f6368;
 }
 
 /* Close Button */

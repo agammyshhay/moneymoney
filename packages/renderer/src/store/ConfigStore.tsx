@@ -34,19 +34,33 @@ interface AccountScrapingData {
 
 // [CUSTOM-SUMMARY-START]
 export interface ScrapeSummary {
-  newTransactions: Map<string, number>;
+  /** accountNumber → { vendorId, count } */
+  newTransactions: Map<string, { vendorId?: string; count: number }>;
   errors: Log[];
   hasRun: boolean;
 }
 // [CUSTOM-SUMMARY-END]
 
 // [CUSTOM-HISTORY-START]
+export type SyncHistoryStatus = 'success' | 'partial' | 'failed';
+
+export interface SyncHistoryAccountSummary {
+  vendorId?: string;
+  count: number;
+}
+
 export interface SyncHistoryEntry {
   date: string;
-  newTransactions: Record<string, number>;
-  errors: { message: string; vendorId?: string }[];
-  success: boolean;
+  /** accountNumber → { vendorId, count }. Older entries used `Record<string, number>` — handled on read. */
+  newTransactions: Record<string, SyncHistoryAccountSummary>;
+  errors: { message: string; vendorId?: string; errorType?: string }[];
+  status: SyncHistoryStatus;
+  accountsAttempted: number;
+  accountsSucceeded: number;
 }
+
+const SYNC_HISTORY_VERSION = 2;
+const SYNC_HISTORY_VERSION_KEY = 'syncHistoryVersion';
 // [CUSTOM-HISTORY-END]
 
 const createAccountToScrapeConfigFromImporter = (importerConfig: Importer): AccountToScrapeConfig => ({
@@ -86,6 +100,49 @@ const createAccountObject = (
   };
 };
 
+// Migrate older history entries (v1: Record<string, number>, boolean success) to the v2 shape.
+const migrateHistoryEntry = (raw: unknown): SyncHistoryEntry | null => {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.date !== 'string') return null;
+
+  const oldTx = (r.newTransactions ?? {}) as Record<string, unknown>;
+  const newTransactions: Record<string, SyncHistoryAccountSummary> = {};
+  Object.entries(oldTx).forEach(([key, val]) => {
+    if (typeof val === 'number') {
+      newTransactions[key] = { count: val };
+    } else if (val && typeof val === 'object' && typeof (val as { count?: unknown }).count === 'number') {
+      newTransactions[key] = val as SyncHistoryAccountSummary;
+    }
+  });
+
+  const errors = Array.isArray(r.errors)
+    ? (r.errors as { message?: unknown; vendorId?: unknown; errorType?: unknown }[])
+        .filter((e) => typeof e.message === 'string')
+        .map((e) => ({
+          message: String(e.message),
+          vendorId: typeof e.vendorId === 'string' ? e.vendorId : undefined,
+          errorType: typeof e.errorType === 'string' ? e.errorType : undefined,
+        }))
+    : [];
+
+  let status: SyncHistoryStatus;
+  if (typeof r.status === 'string' && (r.status === 'success' || r.status === 'partial' || r.status === 'failed')) {
+    status = r.status;
+  } else {
+    status = errors.length === 0 ? 'success' : 'failed';
+  }
+
+  return {
+    date: r.date,
+    newTransactions,
+    errors,
+    status,
+    accountsAttempted: typeof r.accountsAttempted === 'number' ? r.accountsAttempted : 0,
+    accountsSucceeded: typeof r.accountsSucceeded === 'number' ? r.accountsSucceeded : 0,
+  };
+};
+
 const saveConfigIntoFile = (config?: Config) => {
   if (!config || Object.keys(config).length === 0) {
     console.warn(`Can't save config into file. Config is ${config}`);
@@ -105,7 +162,7 @@ export class ConfigStore {
 
   // [CUSTOM-SUMMARY-START]
   lastScrapeSummary: ScrapeSummary = {
-    newTransactions: new Map(),
+    newTransactions: new Map<string, { vendorId?: string; count: number }>(),
     errors: [],
     hasRun: false,
   };
@@ -140,8 +197,20 @@ export class ConfigStore {
 
     // [CUSTOM-HISTORY-START]
     try {
+      const savedVersion = Number(localStorage.getItem(SYNC_HISTORY_VERSION_KEY) ?? '1');
       const saved = localStorage.getItem('syncHistory');
-      this.syncHistory = saved ? JSON.parse(saved) : [];
+      const parsed: unknown[] = saved ? JSON.parse(saved) : [];
+      if (savedVersion < SYNC_HISTORY_VERSION) {
+        this.syncHistory = parsed
+          .map((raw) => migrateHistoryEntry(raw))
+          .filter((entry): entry is SyncHistoryEntry => !!entry);
+        localStorage.setItem(SYNC_HISTORY_VERSION_KEY, String(SYNC_HISTORY_VERSION));
+        if (this.syncHistory.length > 0) {
+          localStorage.setItem('syncHistory', JSON.stringify(this.syncHistory));
+        }
+      } else {
+        this.syncHistory = parsed as SyncHistoryEntry[];
+      }
     } catch {
       this.syncHistory = [];
     }
@@ -274,25 +343,43 @@ export class ConfigStore {
 
   // [CUSTOM-HISTORY-START]
   addSyncHistoryEntry() {
-    const txRecord: Record<string, number> = {};
-    this.lastScrapeSummary.newTransactions.forEach((count, key) => {
-      txRecord[key] = count;
+    const txRecord: Record<string, SyncHistoryAccountSummary> = {};
+    this.lastScrapeSummary.newTransactions.forEach((value, key) => {
+      txRecord[key] = { vendorId: value.vendorId, count: value.count };
     });
 
     const errors = this.lastScrapeSummary.errors.map((err) => ({
       message: err.message,
       vendorId: err.originalEvent?.vendorId,
+      errorType: err.errorType ?? err.originalEvent?.errorType,
     }));
+
+    // Compute account-level success across importer accounts only
+    const importerAccounts = this.importers.filter((imp) => imp.active);
+    const accountsAttempted = importerAccounts.length;
+    const accountsSucceeded = importerAccounts.filter((imp) => imp.status === AccountStatus.DONE).length;
+
+    let status: SyncHistoryStatus;
+    if (errors.length === 0) {
+      status = 'success';
+    } else if (accountsAttempted > 0 && accountsSucceeded === 0) {
+      status = 'failed';
+    } else {
+      status = 'partial';
+    }
 
     const entry: SyncHistoryEntry = {
       date: new Date().toISOString(),
       newTransactions: txRecord,
       errors,
-      success: errors.length === 0,
+      status,
+      accountsAttempted,
+      accountsSucceeded,
     };
 
     this.syncHistory = [entry, ...this.syncHistory].slice(0, 10);
     localStorage.setItem('syncHistory', JSON.stringify(this.syncHistory));
+    localStorage.setItem(SYNC_HISTORY_VERSION_KEY, String(SYNC_HISTORY_VERSION));
   }
 
   clearSyncHistory() {
@@ -329,7 +416,7 @@ export class ConfigStore {
         this.nextAutomaticScrapeDate = (budgetTrackingEvent as ImportStartEvent).nextAutomaticScrapeDate;
         // [CUSTOM-SUMMARY-START] - Reset summary on start
         this.lastScrapeSummary = {
-          newTransactions: new Map(),
+          newTransactions: new Map<string, { vendorId?: string; count: number }>(),
           errors: [],
           hasRun: true,
         };
@@ -340,10 +427,14 @@ export class ConfigStore {
         const exporterEndEvent = budgetTrackingEvent as ExporterEndEvent;
         const newTxs = exporterEndEvent.newTransactions;
         if (newTxs && newTxs.length > 0) {
-          const newMap = new Map<string, number>();
+          const newMap = new Map<string, { vendorId?: string; count: number }>();
           newTxs.forEach((tx) => {
             const key = tx.accountNumber ?? 'Unknown Account';
-            newMap.set(key, (newMap.get(key) ?? 0) + 1);
+            const prev = newMap.get(key);
+            newMap.set(key, {
+              vendorId: prev?.vendorId ?? tx.companyId,
+              count: (prev?.count ?? 0) + 1,
+            });
           });
           this.lastScrapeSummary.newTransactions = newMap;
         }
@@ -353,6 +444,9 @@ export class ConfigStore {
         this.lastScrapeSummary.errors.push({
           message: budgetTrackingEvent.message,
           originalEvent: budgetTrackingEvent,
+          timestamp: new Date().toISOString(),
+          errorType: budgetTrackingEvent.errorType,
+          severity: 'error',
         });
       }
       // [CUSTOM-SUMMARY-END]
@@ -367,11 +461,20 @@ export class ConfigStore {
         }
         const accountScrapingData = this.accountScrapingData.get(accountId);
         if (accountScrapingData) {
+          const status = budgetTrackingEvent.accountStatus ?? AccountStatus.IDLE;
+          let severity: Log['severity'];
+          if (budgetTrackingEvent.error !== undefined || status === AccountStatus.ERROR) severity = 'error';
+          else if (status === AccountStatus.DONE) severity = 'success';
+          else severity = 'info';
+
           accountScrapingData.logs.push({
             message: budgetTrackingEvent.message,
             originalEvent: budgetTrackingEvent,
+            timestamp: new Date().toISOString(),
+            errorType: budgetTrackingEvent.errorType,
+            severity,
           });
-          accountScrapingData.status = budgetTrackingEvent.accountStatus ?? AccountStatus.IDLE;
+          accountScrapingData.status = status;
         }
       }
     }

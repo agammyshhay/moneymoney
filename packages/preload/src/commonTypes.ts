@@ -136,6 +136,8 @@ export interface BudgetTrackingEvent {
   error?: Error;
 
   accountType?: AccountType;
+
+  errorType?: string;
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,6 +147,9 @@ export interface BudgetTrackingEvent {
 export interface Log {
   message: string;
   originalEvent?: BudgetTrackingEvent;
+  timestamp?: string;
+  errorType?: string;
+  severity?: 'info' | 'success' | 'warn' | 'error';
 }
 
 export interface Account {
@@ -227,6 +232,7 @@ export interface EnrichedTransaction extends Transaction {
   accountNumber: string;
   category?: string;
   hash: string;
+  companyId?: string;
 }
 
 export interface Config {

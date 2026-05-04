@@ -39,6 +39,9 @@ import OnboardingWizard from './onboarding/OnboardingWizard';
 // [CUSTOM-SIDEBAR-TIPS-START]
 import SidebarTips from './SidebarTips';
 // [CUSTOM-SIDEBAR-TIPS-END]
+// [CUSTOM-ACCOUNT-WARNINGS-START]
+import AccountWarningsBanner from './AccountWarningsBanner';
+// [CUSTOM-ACCOUNT-WARNINGS-END]
 
 const Body = () => {
   const configStore = useConfigStore();
@@ -149,6 +152,16 @@ const Body = () => {
     setModalStatus(ModalStatus.NEW_SCRAPER);
   };
 
+  // [CUSTOM-ACCOUNT-WARNINGS-START]
+  const openImporterSettings = useCallback(
+    (accountId: string) => {
+      const importer = configStore.importers.find((i) => i.id === accountId);
+      if (importer) showModal(importer, ModalStatus.IMPORTER_SETTINGS);
+    },
+    [configStore],
+  );
+  // [CUSTOM-ACCOUNT-WARNINGS-END]
+
   const createImporter = async (importer: Importer) => {
     await configStore.addImporter(importer);
     closeModal();
@@ -201,6 +214,9 @@ const Body = () => {
             </div>
           )}
           {/* [CUSTOM-BASE44-END] */}
+          {/* [CUSTOM-ACCOUNT-WARNINGS-START] */}
+          <AccountWarningsBanner onOpenAccount={openImporterSettings} />
+          {/* [CUSTOM-ACCOUNT-WARNINGS-END] */}
           <Stack direction="horizontal" className={styles.customGap}>
             <AccountsContainer
               title="בנקים וכרטיסי אשראי"

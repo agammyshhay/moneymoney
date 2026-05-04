@@ -1,7 +1,9 @@
+import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { Button, Card, Form, Image } from 'react-bootstrap';
+import { Alert, Button, Card, Form, Image } from 'react-bootstrap';
 import { updateImporterCredentials } from '#preload';
 import { IMPORTERS_LOGIN_FIELDS, LOGIN_FIELD_DISPLAY_NAMES, LOGIN_FIELD_MIN_LENGTH } from '../../accountMetadata';
+import { useConfigStore } from '../../store/ConfigStore';
 import { type Importer } from '../../types';
 import styles from './EditImporter.module.css';
 
@@ -11,7 +13,9 @@ interface EditImporterProps {
   importer: Importer;
 }
 
-export default function EditImporter({ handleSave, handleDelete, importer }: EditImporterProps) {
+function EditImporter({ handleSave, handleDelete, importer }: EditImporterProps) {
+  const configStore = useConfigStore();
+  const warning = configStore.accountWarnings.find((w) => w.accountId === importer.id);
   const [loginFields, setLoginFields] = useState<Record<string, string>>(importer.loginFields || {});
   const [active, setActive] = useState<boolean>(importer.active);
   const [validated, setValidated] = useState(!!importer.hasCredentials);
@@ -94,6 +98,16 @@ export default function EditImporter({ handleSave, handleDelete, importer }: Edi
       <Card className={styles.card}>
         <Image className={styles.logo} src={importer.logo} roundedCircle width={100} height={100} />
         <Card.Body className={styles.cardBody}>
+          {/* [CUSTOM-ACCOUNT-WARNINGS-START] */}
+          {warning && (
+            <Alert variant={warning.severity === 'critical' ? 'danger' : 'warning'} className="mb-3">
+              <Alert.Heading style={{ fontSize: '1rem', marginBottom: warning.hint ? '0.4rem' : 0 }}>
+                {warning.title}
+              </Alert.Heading>
+              {warning.hint && <div style={{ fontSize: '0.88rem' }}>{warning.hint}</div>}
+            </Alert>
+          )}
+          {/* [CUSTOM-ACCOUNT-WARNINGS-END] */}
           <Form>
             {/* [CUSTOM-FIX-START] — Show "credentials saved" indicator for existing accounts */}
             {importer.hasCredentials && !hasEditedCredentials && (
@@ -147,3 +161,5 @@ export default function EditImporter({ handleSave, handleDelete, importer }: Edi
     </div>
   );
 }
+
+export default observer(EditImporter);

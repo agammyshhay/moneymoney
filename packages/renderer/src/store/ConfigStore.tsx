@@ -26,6 +26,9 @@ import {
   type ExporterEndEvent,
 } from '../types';
 import { type ImportStartEvent } from '../../../main/src/backend/eventEmitters/EventEmitter';
+// [CUSTOM-ACCOUNT-WARNINGS-START]
+import { deriveAccountWarnings, type AccountWarning } from '../utils/accountHealth';
+// [CUSTOM-ACCOUNT-WARNINGS-END]
 
 interface AccountScrapingData {
   logs: Log[];
@@ -273,6 +276,13 @@ export class ConfigStore {
         };
       });
   }
+
+  // [CUSTOM-ACCOUNT-WARNINGS-START]
+  get accountWarnings(): AccountWarning[] {
+    if (!this.config?.scraping?.accountsToScrape) return [];
+    return deriveAccountWarnings(this.config.scraping.accountsToScrape, this.syncHistory);
+  }
+  // [CUSTOM-ACCOUNT-WARNINGS-END]
 
   get isScraping(): boolean {
     return (

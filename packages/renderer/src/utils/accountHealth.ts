@@ -26,6 +26,10 @@ export interface AccountWarning {
 type Outcome = 'success' | 'failure' | 'not_attempted';
 
 const classify = (entry: SyncHistoryEntry, vendorId: CompanyTypes): Outcome => {
+  if (entry.successfulVendors?.includes(vendorId)) return 'success';
+  // Backward-compat: entries written before `successfulVendors` existed only signal success
+  // via newTransactions. A successful sync with zero new transactions in those entries cannot
+  // be distinguished from "not attempted" — that is the bug `successfulVendors` was added to fix.
   const successInEntry = Object.values(entry.newTransactions ?? {}).some((tx) => tx.vendorId === vendorId);
   if (successInEntry) return 'success';
   const failureInEntry = (entry.errors ?? []).some((err) => err.vendorId === vendorId);

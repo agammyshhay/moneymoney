@@ -60,6 +60,12 @@ export interface SyncHistoryEntry {
   status: SyncHistoryStatus;
   accountsAttempted: number;
   accountsSucceeded: number;
+  /**
+   * companyIds (vendorIds) of importers that finished with status DONE in this sync.
+   * Required to detect a successful sync that returned zero new transactions —
+   * absent in entries written before this field was introduced.
+   */
+  successfulVendors?: string[];
 }
 
 const SYNC_HISTORY_VERSION = 2;
@@ -136,6 +142,10 @@ const migrateHistoryEntry = (raw: unknown): SyncHistoryEntry | null => {
     status = errors.length === 0 ? 'success' : 'failed';
   }
 
+  const successfulVendors = Array.isArray(r.successfulVendors)
+    ? (r.successfulVendors as unknown[]).filter((v): v is string => typeof v === 'string')
+    : undefined;
+
   return {
     date: r.date,
     newTransactions,
@@ -143,6 +153,7 @@ const migrateHistoryEntry = (raw: unknown): SyncHistoryEntry | null => {
     status,
     accountsAttempted: typeof r.accountsAttempted === 'number' ? r.accountsAttempted : 0,
     accountsSucceeded: typeof r.accountsSucceeded === 'number' ? r.accountsSucceeded : 0,
+    successfulVendors,
   };
 };
 
@@ -367,7 +378,9 @@ export class ConfigStore {
     // Compute account-level success across importer accounts only
     const importerAccounts = this.importers.filter((imp) => imp.active);
     const accountsAttempted = importerAccounts.length;
-    const accountsSucceeded = importerAccounts.filter((imp) => imp.status === AccountStatus.DONE).length;
+    const succeededImporters = importerAccounts.filter((imp) => imp.status === AccountStatus.DONE);
+    const accountsSucceeded = succeededImporters.length;
+    const successfulVendors = succeededImporters.map((imp) => imp.companyId as string);
 
     let status: SyncHistoryStatus;
     if (errors.length === 0) {
@@ -385,6 +398,7 @@ export class ConfigStore {
       status,
       accountsAttempted,
       accountsSucceeded,
+      successfulVendors,
     };
 
     this.syncHistory = [entry, ...this.syncHistory].slice(0, 10);

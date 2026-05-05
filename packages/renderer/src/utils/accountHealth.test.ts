@@ -31,6 +31,29 @@ const successEntry = (date: string, vendorId: CompanyTypes = CompanyTypes.HAPOAL
   status: 'success',
   accountsAttempted: 1,
   accountsSucceeded: 1,
+  successfulVendors: [vendorId],
+});
+
+// Successful sync that returned zero new transactions — what the user sees right after
+// fixing a bad password if the account was already up to date.
+const emptySuccessEntry = (date: string, vendorId: CompanyTypes = CompanyTypes.HAPOALIM): SyncHistoryEntry => ({
+  date,
+  newTransactions: {},
+  errors: [],
+  status: 'success',
+  accountsAttempted: 1,
+  accountsSucceeded: 1,
+  successfulVendors: [vendorId],
+});
+
+// Pre-`successfulVendors` entry shape — represents history written before the field was added.
+const legacySuccessEntry = (date: string, vendorId: CompanyTypes = CompanyTypes.HAPOALIM): SyncHistoryEntry => ({
+  date,
+  newTransactions: { '12345': { vendorId, count: 5 } },
+  errors: [],
+  status: 'success',
+  accountsAttempted: 1,
+  accountsSucceeded: 1,
 });
 
 const NOW = new Date('2026-05-04T12:00:00Z').getTime();
@@ -162,6 +185,29 @@ describe('deriveAccountWarnings', () => {
       successEntry(daysAgo(0)),
       failureEntry(daysAgo(1), 'CHANGE_PASSWORD'),
       failureEntry(daysAgo(2), 'INVALID_PASSWORD'),
+    ];
+    expect(deriveAccountWarnings([account], history, NOW)).toEqual([]);
+  });
+
+  test('successful sync with zero new transactions clears prior failures', () => {
+    // Reproduces the user-reported bug: password fixed, sync succeeded, but no new transactions
+    // were downloaded because the account was already up to date. Prior to the fix, the banner
+    // persisted because the success was indistinguishable from "not attempted".
+    const history: SyncHistoryEntry[] = [
+      emptySuccessEntry(daysAgo(0)),
+      failureEntry(daysAgo(1), 'INVALID_PASSWORD'),
+      failureEntry(daysAgo(2), 'INVALID_PASSWORD'),
+      failureEntry(daysAgo(3), 'INVALID_PASSWORD'),
+    ];
+    expect(deriveAccountWarnings([account], history, NOW)).toEqual([]);
+  });
+
+  test('legacy entry (pre-successfulVendors) still detected as success via newTransactions', () => {
+    const history: SyncHistoryEntry[] = [
+      legacySuccessEntry(daysAgo(0)),
+      failureEntry(daysAgo(1), 'INVALID_PASSWORD'),
+      failureEntry(daysAgo(2), 'INVALID_PASSWORD'),
+      failureEntry(daysAgo(3), 'INVALID_PASSWORD'),
     ];
     expect(deriveAccountWarnings([account], history, NOW)).toEqual([]);
   });

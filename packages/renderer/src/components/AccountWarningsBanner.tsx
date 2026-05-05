@@ -42,25 +42,19 @@ const AccountWarningsBanner = ({ onOpenAccount }: Props) => {
           <i className={expanded ? 'bi bi-chevron-up' : 'bi bi-chevron-down'} />
         </button>
       </div>
-      {expanded && (
-        <div className={styles.list}>
-          {warnings.map((warning) => (
-            <div key={warning.accountId} className={styles.row}>
-              <span
-                className={`${styles.severityDot} ${warning.severity === 'critical' ? styles.dotCritical : styles.dotWarning}`}
-                aria-hidden="true"
-              />
-              <div className={styles.rowText}>
-                <span className={styles.rowTitle}>{warning.title}</span>
-                {warning.hint && <span className={styles.rowHint}>{warning.hint}</span>}
-              </div>
-              <button type="button" className={styles.rowAction} onClick={() => onOpenAccount(warning.accountId)}>
-                פתח הגדרות
-              </button>
+      <div className={`${styles.list} ${expanded ? styles.listOpen : ''}`} aria-hidden={!expanded}>
+        {warnings.map((warning) => (
+          <div key={warning.accountId} className={styles.row}>
+            <div className={styles.rowText}>
+              <span className={styles.rowTitle}>{warning.title}</span>
+              {warning.hint && <span className={styles.rowHint}>{warning.hint}</span>}
             </div>
-          ))}
-        </div>
-      )}
+            <button type="button" className={styles.rowAction} onClick={() => onOpenAccount(warning.accountId)}>
+              פתח הגדרות
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -260,6 +260,31 @@
 .connectBannerButton:active {
   transform: translateY(0);
 }
+
+/* Error variant — used when the latest Base44 sync failed (network / generic). */
+.connectBannerError {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border: 1px solid rgba(198, 40, 40, 0.3);
+  box-shadow: 0 2px 12px rgba(198, 40, 40, 0.12);
+}
+
+.connectBannerIconError {
+  background: rgba(198, 40, 40, 0.12);
+}
+
+.connectBannerTitleError {
+  color: #b71c1c;
+}
+
+.connectBannerSubtitleError {
+  color: #c62828;
+}
+
+.connectBannerButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
 /* [CUSTOM-BASE44-END] */
 
 /* [CUSTOM-LAYOUT-END] */

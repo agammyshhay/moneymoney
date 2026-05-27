@@ -1,4 +1,4 @@
-import { cancelScrape, openExternal, scrape, getBase44ConnectUrl } from '#preload';
+import { cancelScrape, openExternal, scrape } from '#preload';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -42,6 +42,9 @@ import SidebarTips from './SidebarTips';
 // [CUSTOM-ACCOUNT-WARNINGS-START]
 import AccountWarningsBanner from './AccountWarningsBanner';
 // [CUSTOM-ACCOUNT-WARNINGS-END]
+// [CUSTOM-BASE44-START]
+import Base44StatusBanner from './Base44StatusBanner';
+// [CUSTOM-BASE44-END]
 
 const Body = () => {
   const configStore = useConfigStore();
@@ -192,27 +195,7 @@ const Body = () => {
           <SidebarTips />
           {/* [CUSTOM-SIDEBAR-TIPS-END] */}
           {/* [CUSTOM-BASE44-START] */}
-          {!configStore.hasBearerToken && (
-            <div className={styles.connectBanner}>
-              <div className={styles.connectBannerIcon}>
-                <i className="bi bi-link-45deg" style={{ color: '#f9a825', fontSize: '1.15rem' }} />
-              </div>
-              <div className={styles.connectBannerContent}>
-                <span className={styles.connectBannerTitle}>לא מחובר ל-MoneyMoney</span>
-                <span className={styles.connectBannerSubtitle}>התנועות לא מסונכרנות לאתר</span>
-              </div>
-              <button
-                type="button"
-                className={styles.connectBannerButton}
-                onClick={async () => {
-                  const url = await getBase44ConnectUrl();
-                  openExternal(url);
-                }}
-              >
-                חבר עכשיו
-              </button>
-            </div>
-          )}
+          <Base44StatusBanner />
           {/* [CUSTOM-BASE44-END] */}
           {/* [CUSTOM-ACCOUNT-WARNINGS-START] */}
           <AccountWarningsBanner onOpenAccount={openImporterSettings} />

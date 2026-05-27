@@ -157,6 +157,16 @@ const migrateHistoryEntry = (raw: unknown): SyncHistoryEntry | null => {
   };
 };
 
+// [CUSTOM-BASE44-START]
+// The JSON exporter is the only path that talks to Base44, and `exportTransactions.ts`
+// always tags its EXPORTER_ERROR events with `vendorId: 'json'`. The `BASE44_` errorType
+// prefix is kept as defensive fallback (e.g. if a future event lacks vendorId).
+const isBase44Error = (vendorId?: string, errorType?: string): boolean => {
+  if (vendorId === OutputVendorName.JSON) return true;
+  return errorType?.startsWith('BASE44_') === true;
+};
+// [CUSTOM-BASE44-END]
+
 const saveConfigIntoFile = (config?: Config) => {
   if (!config || Object.keys(config).length === 0) {
     console.warn(`Can't save config into file. Config is ${config}`);
@@ -186,6 +196,12 @@ export class ConfigStore {
   // [CUSTOM-HISTORY-START]
   syncHistory: SyncHistoryEntry[] = [];
   // [CUSTOM-HISTORY-END]
+
+  // [CUSTOM-BASE44-START] — transient overrides from the manual retry button.
+  // Cleared at the start of every full scrape so the next real sync result takes over.
+  base44ManualSyncOk = false;
+  base44ManualSyncError: { errorType?: string; message?: string } | null = null;
+  // [CUSTOM-BASE44-END]
 
   // TODO: move this to a separate store
   accountScrapingData: Map<CompanyTypes | OutputVendorName, AccountScrapingData>;
@@ -294,6 +310,46 @@ export class ConfigStore {
     return deriveAccountWarnings(this.config.scraping.accountsToScrape, this.syncHistory);
   }
   // [CUSTOM-ACCOUNT-WARNINGS-END]
+
+  // [CUSTOM-BASE44-START] — derive a single status the main-screen banner can render off of.
+  get base44Status(): 'connected' | 'no-token' | 'auth-failed' | 'network-failed' | 'sync-failed' {
+    if (!this.hasBearerToken) return 'no-token';
+
+    if (this.base44ManualSyncError) {
+      const t = this.base44ManualSyncError.errorType;
+      if (t === 'BASE44_AUTH' || t === 'token_expired') return 'auth-failed';
+      if (t === 'BASE44_NETWORK') return 'network-failed';
+      return 'sync-failed';
+    }
+    if (this.base44ManualSyncOk) return 'connected';
+
+    const latest = this.syncHistory[0];
+    if (!latest) return 'connected';
+    const base44Error = latest.errors.find((e) => isBase44Error(e.vendorId, e.errorType));
+    if (!base44Error) return 'connected';
+    if (base44Error.errorType === 'BASE44_AUTH') return 'auth-failed';
+    if (base44Error.errorType === 'BASE44_NETWORK') return 'network-failed';
+    return 'sync-failed';
+  }
+
+  get latestBase44Error(): { errorType?: string; message?: string } | null {
+    if (this.base44ManualSyncError) return this.base44ManualSyncError;
+    const latest = this.syncHistory[0];
+    if (!latest) return null;
+    const e = latest.errors.find((err) => isBase44Error(err.vendorId, err.errorType));
+    return e ? { errorType: e.errorType, message: e.message } : null;
+  }
+
+  recordManualBase44Sync(ok: boolean, errorType?: string, message?: string) {
+    if (ok) {
+      this.base44ManualSyncOk = true;
+      this.base44ManualSyncError = null;
+    } else {
+      this.base44ManualSyncOk = false;
+      this.base44ManualSyncError = { errorType, message };
+    }
+  }
+  // [CUSTOM-BASE44-END]
 
   get isScraping(): boolean {
     return (
@@ -445,6 +501,10 @@ export class ConfigStore {
           hasRun: true,
         };
         // [CUSTOM-SUMMARY-END]
+        // [CUSTOM-BASE44-START] — let the new real sync result drive the banner again.
+        this.base44ManualSyncOk = false;
+        this.base44ManualSyncError = null;
+        // [CUSTOM-BASE44-END]
       }
       // [CUSTOM-SUMMARY-START] - Capture new transactions from EXPORTER_END only
       if (eventName === 'EXPORTER_END') {

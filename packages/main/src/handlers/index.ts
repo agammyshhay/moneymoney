@@ -1,10 +1,5 @@
 import { App, userDataPath } from '@/app-globals';
-import {
-  cancelScraping,
-  scrapeAndUpdateOutputVendors,
-  setPeriodicScrapingIfNeeded,
-  stopPeriodicScraping,
-} from '@/backend';
+import { cancelScraping, scrapeAndUpdateOutputVendors, stopPeriodicScraping } from '@/backend';
 import { type Config, type Credentials } from '@/backend/commonTypes';
 import { getConfig } from '@/backend/configManager/configManager';
 import { BudgetTrackingEventEmitter } from '@/backend/eventEmitters/EventEmitter';
@@ -218,7 +213,6 @@ export const registerHandlers = () => {
     eventSubscriber.onAny((eventName, eventData) => {
       event.reply('scrapingProgress', JSON.stringify({ eventName, eventData }));
     });
-    await setPeriodicScrapingIfNeeded(config, eventSubscriber);
     await scrapeAndUpdateOutputVendors(config, eventSubscriber);
   });
   // [CUSTOM-FIX-END]

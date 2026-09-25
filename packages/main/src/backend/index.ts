@@ -11,34 +11,31 @@ import logger from '../logging/logger';
 export { CompanyTypes } from 'israeli-bank-scrapers-core';
 export { cancelScraping, Events, configManager, outputVendors };
 
-let intervalId: NodeJS.Timeout | null = null;
-
-export async function setPeriodicScrapingIfNeeded(config: Config, optionalEventPublisher?: Events.EventPublisher) {
-  const hoursInterval = config.scraping.periodicScrapingIntervalHours;
-  optionalEventPublisher = optionalEventPublisher ?? new Events.BudgetTrackingEventEmitter();
-
-  stopPeriodicScraping();
-
-  if (hoursInterval) {
-    await optionalEventPublisher.emit(EventNames.LOG, {
-      message: `Setting up periodic scraping every ${hoursInterval} hours`,
-    });
-    intervalId = setInterval(
-      async () => {
-        await scrapeAndUpdateOutputVendors(config, optionalEventPublisher);
-      },
-      hoursInterval * 1000 * 60 * 60,
-    );
-  }
-}
-
+// Periodic sync is scheduled by the renderer (Body.tsx overdue check, based on lastScrapeDate).
+// Kept as a no-op for the existing stopPeriodicScraping IPC.
 export function stopPeriodicScraping() {
-  if (intervalId) {
-    clearInterval(intervalId);
-  }
+  // nothing to stop
 }
+
+// [CUSTOM-FIX-START] — Only one sync at a time. Overlapping runs log into the same banks
+// concurrently and race on transaction.json.
+let syncInProgress = false;
 
 export async function scrapeAndUpdateOutputVendors(config: Config, optionalEventPublisher?: Events.EventPublisher) {
+  if (syncInProgress) {
+    logger.log('Sync already in progress, ignoring new sync request');
+    return;
+  }
+  syncInProgress = true;
+  try {
+    return await runScrapeAndExport(config, optionalEventPublisher);
+  } finally {
+    syncInProgress = false;
+  }
+}
+// [CUSTOM-FIX-END]
+
+async function runScrapeAndExport(config: Config, optionalEventPublisher?: Events.EventPublisher) {
   const eventPublisher = optionalEventPublisher ?? new Events.BudgetTrackingEventEmitter();
 
   const startDate = moment().subtract(config.scraping.numDaysBack, 'days').startOf('day').toDate();

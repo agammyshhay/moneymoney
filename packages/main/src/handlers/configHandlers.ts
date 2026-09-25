@@ -69,6 +69,11 @@ function mergePreservingCredentials(existing: Config, incoming: Config): Config 
     merged.outputVendors.googleSheets.options.credentials = existing.outputVendors.googleSheets.options.credentials;
   }
 
+  // chromiumPath is written by the main process after a download; the renderer's copy may be stale
+  if (!merged.scraping.chromiumPath && existing.scraping.chromiumPath) {
+    merged.scraping.chromiumPath = existing.scraping.chromiumPath;
+  }
+
   return merged;
 }
 // [CUSTOM-FIX-END]
@@ -115,6 +120,15 @@ export async function updateImporterCredentialsHandler(_: unknown, accountId: st
     }
 
     account.loginFields = loginFields;
+    await updateConfig(configFilePath, config);
+  });
+}
+
+// Persist the downloaded Chromium path under the same lock as renderer config writes.
+export async function updateChromiumPath(chromiumPath: string) {
+  return withConfigLock(async () => {
+    const config = await getConfig();
+    config.scraping.chromiumPath = chromiumPath;
     await updateConfig(configFilePath, config);
   });
 }

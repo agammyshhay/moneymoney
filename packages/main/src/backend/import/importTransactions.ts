@@ -6,10 +6,10 @@ import {
   type FinancialAccountDetails,
   type ScraperScrapingResult,
 } from '@/backend/commonTypes';
-import { getConfig, updateConfig } from '@/backend/configManager/configManager';
+import { getConfig } from '@/backend/configManager/configManager';
 import * as bankScraper from '@/backend/import/bankScraper';
+import { updateChromiumPath } from '@/handlers/configHandlers';
 import Bottleneck from 'bottleneck';
-import { existsSync } from 'fs';
 import { type Transaction } from 'israeli-bank-scrapers-core/lib/transactions';
 import _ from 'lodash';
 import moment from 'moment';
@@ -59,18 +59,12 @@ export async function scrapeFinancialAccountsAndFetchTransactions(
   logger.log('Scraping financial accounts and fetching transactions');
 
   try {
-    if (scrapingConfig.chromiumPath && existsSync(scrapingConfig.chromiumPath)) {
-      logger.log('Using provided chromium path', scrapingConfig.chromiumPath);
-      chromiumPath = scrapingConfig.chromiumPath;
-    } else {
-      logger.log('Downloading chromium');
-      chromiumPath = await getChrome(userDataPath, (percent) => emitChromeDownload(eventPublisher, percent));
+    // Always resolve through getChrome: it reuses the installed build offline and prunes old builds.
+    chromiumPath = await getChrome(userDataPath, (percent) => emitChromeDownload(eventPublisher, percent));
 
-      // Save the downloaded chromium path to config
+    if (chromiumPath !== scrapingConfig.chromiumPath) {
       try {
-        const currentConfig = await getConfig();
-        currentConfig.scraping.chromiumPath = chromiumPath;
-        await updateConfig(configFilePath, currentConfig);
+        await updateChromiumPath(chromiumPath);
         logger.log('Saved new chromium path to config');
       } catch (e) {
         logger.error('Failed to save chromium path to config', e);

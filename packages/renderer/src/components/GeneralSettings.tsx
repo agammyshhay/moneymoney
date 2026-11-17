@@ -1,5 +1,6 @@
+import { showSaveDialog } from '#preload';
 import { observer } from 'mobx-react-lite';
-import { Card, Form } from 'react-bootstrap';
+import { Button, Card, Form, InputGroup } from 'react-bootstrap';
 import { useConfigStore } from '../store/ConfigStore';
 import styles from './GeneralSettings.module.css';
 import Base44Settings from './Base44Settings';
@@ -21,6 +22,16 @@ function GeneralSettings() {
       configStore.setTimeout(numberTimeout);
     }
   };
+
+  // [CUSTOM-CSV-START]
+  const csvConfig = configStore.config?.outputVendors?.csv;
+  const chooseCsvFile = async () => {
+    const filePath = await showSaveDialog();
+    if (filePath) {
+      configStore.setCsvFilePath(filePath.toLowerCase().endsWith('.csv') ? filePath : `${filePath}.csv`);
+    }
+  };
+  // [CUSTOM-CSV-END]
 
   return (
     <div className={styles.container}>
@@ -55,6 +66,41 @@ function GeneralSettings() {
                 </Form.Text>
               </Form.Group>
             </div>
+
+            {/* [CUSTOM-CSV-START] */}
+            <div className={styles.scrapingSection}>
+              <h3 className={styles.scrapingHeader}>
+                <i className="bi bi-filetype-csv ms-1"></i>
+                שמירה לקובץ CSV
+              </h3>
+              <p className={styles.scrapingDescription}>
+                בנוסף לסנכרון, ניתן לשמור את כל העסקאות גם לקובץ CSV שאפשר לפתוח באקסל. הקובץ מתעדכן בכל סנכרון.
+              </p>
+              <Form.Group>
+                <Form.Check
+                  type="switch"
+                  id="csv-export-switch"
+                  label="שמור עסקאות לקובץ CSV"
+                  checked={csvConfig?.active ?? false}
+                  onChange={() => configStore.toggleCsvExport()}
+                />
+              </Form.Group>
+              {csvConfig?.active && (
+                <Form.Group className="mt-3">
+                  <Form.Label className={styles.scrapingLabel}>מיקום הקובץ</Form.Label>
+                  <InputGroup>
+                    <Form.Control readOnly value={csvConfig.options.filePath} style={{ direction: 'ltr' }} />
+                    <Button variant="outline-secondary" onClick={chooseCsvFile}>
+                      בחר…
+                    </Button>
+                  </InputGroup>
+                  <Form.Text className={styles.scrapingHint}>
+                    יש לסגור את הקובץ באקסל לפני הסנכרון — קובץ פתוח לא יתעדכן.
+                  </Form.Text>
+                </Form.Group>
+              )}
+            </div>
+            {/* [CUSTOM-CSV-END] */}
 
             {/* [CUSTOM-STARTUP-START] */}
             <Form.Group className="mt-3">

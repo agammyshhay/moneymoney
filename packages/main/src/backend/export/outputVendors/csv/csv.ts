@@ -7,7 +7,9 @@ import {
 import { mergeTransactions, sortByDate, unifyHash } from '@/backend/transactions/transactions';
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
+import { userDataPath } from '@/app-globals';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { type TransactionInstallments } from 'israeli-bank-scrapers-core/lib/transactions';
 import logger from '/@/logging/logger';
 
@@ -84,7 +86,10 @@ export const serializeTransactions = (transactions: EnrichedTransaction[]) => {
 };
 
 const exportTransactions: ExportTransactionsFunction = async ({ transactionsToCreate, outputVendorsConfig }) => {
-  const { filePath } = outputVendorsConfig.csv!.options;
+  // [CUSTOM-CSV-START] Resolve relative paths (default 'transaction.csv') against userData, like the JSON exporter
+  const configuredPath = outputVendorsConfig.csv!.options.filePath;
+  const filePath = path.isAbsolute(configuredPath) ? configuredPath : path.resolve(userDataPath, configuredPath);
+  // [CUSTOM-CSV-END]
   const savedTransactions = await parseTransactionsFile(filePath);
   const mergedTransactions = mergeTransactions(savedTransactions, transactionsToCreate);
   const sorted = sortByDate(mergedTransactions);

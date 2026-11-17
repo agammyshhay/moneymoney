@@ -507,7 +507,9 @@ export class ConfigStore {
         // [CUSTOM-BASE44-END]
       }
       // [CUSTOM-SUMMARY-START] - Capture new transactions from EXPORTER_END only
-      if (eventName === 'EXPORTER_END') {
+      // [CUSTOM-CSV-START] Count only the JSON exporter — CSV has its own file and its own "new" set
+      if (eventName === 'EXPORTER_END' && budgetTrackingEvent.vendorId === OutputVendorName.JSON) {
+        // [CUSTOM-CSV-END]
         const exporterEndEvent = budgetTrackingEvent as ExporterEndEvent;
         const newTxs = exporterEndEvent.newTransactions;
         if (newTxs && newTxs.length > 0) {
@@ -603,6 +605,24 @@ export class ConfigStore {
     }
     this.config.outputVendors.json.options.filePath = filePath;
   }
+
+  // [CUSTOM-CSV-START]
+  private ensureCsvConfig() {
+    if (!this.config.outputVendors.csv) {
+      this.config.outputVendors.csv = { active: false, options: { filePath: 'transaction.csv' } };
+    }
+    return this.config.outputVendors.csv;
+  }
+
+  toggleCsvExport() {
+    const csv = this.ensureCsvConfig();
+    csv.active = !csv.active;
+  }
+
+  setCsvFilePath(filePath: string) {
+    this.ensureCsvConfig().options.filePath = filePath;
+  }
+  // [CUSTOM-CSV-END]
 
   // [CUSTOM-STARTUP-START]
   toggleRunAtStartup() {

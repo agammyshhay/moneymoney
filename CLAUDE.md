@@ -61,7 +61,7 @@ Communication flow: **Renderer** ↔ **Preload** (contextBridge) ↔ **Main** (i
 
 - `backend/configManager/` — Config persistence with encrypted credentials (keytar)
 - `backend/import/` — Bank scraping via `israeli-bank-scrapers-core` + `puppeteer-core`
-- `backend/export/outputVendors/` — Plugin-style exporters — only JSON is active (CSV, Google Sheets, YNAB code exists but is disabled in `index.ts`). Each implements the `OutputVendor` interface from `commonTypes.ts`
+- `backend/export/outputVendors/` — Plugin-style exporters — JSON (always on) and CSV (opt-in via Settings → "שמירה לקובץ CSV", `outputVendors.csv.active`) are registered in `index.ts`; Google Sheets and YNAB code exists but is disabled. Each implements the `OutputVendor` interface from `commonTypes.ts`
 - `backend/eventEmitters/` — `BudgetTrackingEventEmitter` for real-time scraping progress events
 - `handlers/` — IPC handler registration (bridges preload calls to backend)
 - `handlers/configHandlers.ts` — Config read/write with **credential isolation**: `getConfigHandler` strips `loginFields` before sending to renderer (replaces with `hasCredentials` boolean); `updateConfigHandler` merges incoming credential-stripped config with disk config preserving credentials; `updateImporterCredentials` is a dedicated IPC for credential writes that bypass the renderer's MobX store. A config-file mutex serializes concurrent writes.
@@ -119,11 +119,11 @@ Vite 5 with per-package configs (`vite.config.js` in each package). Main builds 
 - **Prettier** line width: 120 characters
 - **CSS Modules** preferred for component styling — import as `import styles from './Component.module.css'`. Avoid `<style>` tags inside JSX (causes global CSS pollution).
 - **RTL Hebrew app** — The entire UI is in Hebrew with right-to-left layout. Bootstrap 5 RTL variant loaded. Use `margin-inline-start/end` instead of `margin-right/left`. Form inputs expecting LTR content (URLs, API keys) use `direction: ltr` override. All user-facing strings must be in Hebrew.
-- **`[CUSTOM-*]` markers** — Custom modifications are wrapped in `[CUSTOM-NAME-START]` / `[CUSTOM-NAME-END]` comments. Marker types: `CUSTOM-STARTUP`, `CUSTOM-THEME`, `CUSTOM-FIX`, `CUSTOM-NEXT-SYNC`, `CUSTOM-SUMMARY`, `CUSTOM-HISTORY`, `CUSTOM-SINGLE-RUN`, `CUSTOM-AUTO-RUN`, `CUSTOM-BASE44`, `CUSTOM-LAYOUT`. Markers span multiple files when a feature touches main + preload + renderer.
+- **`[CUSTOM-*]` markers** — Custom modifications are wrapped in `[CUSTOM-NAME-START]` / `[CUSTOM-NAME-END]` comments. Marker types: `CUSTOM-STARTUP`, `CUSTOM-THEME`, `CUSTOM-FIX`, `CUSTOM-NEXT-SYNC`, `CUSTOM-SUMMARY`, `CUSTOM-HISTORY`, `CUSTOM-SINGLE-RUN`, `CUSTOM-AUTO-RUN`, `CUSTOM-BASE44`, `CUSTOM-LAYOUT`, `CUSTOM-CSV`. Markers span multiple files when a feature touches main + preload + renderer.
 
 ## Core Types
 
-`packages/main/src/backend/commonTypes.ts` defines the central types: `Config`, `OutputVendorName` (enum: ynab, googleSheets, json, csv), `OutputVendor` interface, `EnrichedTransaction`, `AccountToScrapeConfig`. Note: `OutputVendorName` still has all four values for config compatibility, but only `json` is active at runtime.
+`packages/main/src/backend/commonTypes.ts` defines the central types: `Config`, `OutputVendorName` (enum: ynab, googleSheets, json, csv), `OutputVendor` interface, `EnrichedTransaction`, `AccountToScrapeConfig`. Note: `OutputVendorName` still has all four values for config compatibility, but only `json` and `csv` are registered at runtime.
 
 **Duplicate types warning:** The `Config` interface is defined in **three** places that must be kept in sync:
 - `packages/main/src/backend/commonTypes.ts` (source of truth)

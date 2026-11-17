@@ -111,7 +111,7 @@ Vite 5 with per-package configs (`vite.config.js` in each package). Main builds 
 ## Key Conventions
 
 - **ESM throughout** — `"type": "module"` in root package.json
-- **Node >= 22.12.0** required (for israeli-bank-scrapers-core compatibility)
+- **Node >= 22.22.2** required (for israeli-bank-scrapers-core compatibility)
 - **Semicolons required**, single quotes, trailing commas in multiline
 - **Inline type imports** — `import { type Foo }` enforced by ESLint
 - **Unused vars** prefixed with `_` are allowed

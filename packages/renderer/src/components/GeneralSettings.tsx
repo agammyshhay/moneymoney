@@ -8,6 +8,17 @@ import Base44Settings from './Base44Settings';
 import CheckForUpdates from './CheckForUpdates';
 // [CUSTOM-UPDATE-END]
 
+// [CUSTOM-SYNC-INTERVAL-START]
+const SYNC_INTERVAL_OPTIONS = [
+  { hours: 1, label: 'שעה' },
+  { hours: 2, label: 'שעתיים (ברירת מחדל)' },
+  { hours: 4, label: '4 שעות' },
+  { hours: 6, label: '6 שעות' },
+  { hours: 12, label: '12 שעות' },
+  { hours: 24, label: 'יום' },
+];
+// [CUSTOM-SYNC-INTERVAL-END]
+
 function GeneralSettings() {
   const configStore = useConfigStore();
 
@@ -22,6 +33,13 @@ function GeneralSettings() {
       configStore.setTimeout(numberTimeout);
     }
   };
+
+  // [CUSTOM-SYNC-INTERVAL-START]
+  const syncIntervalHours = configStore.config?.scraping?.periodicScrapingIntervalHours ?? 2;
+  const syncIntervalOptions = SYNC_INTERVAL_OPTIONS.some(({ hours }) => hours === syncIntervalHours)
+    ? SYNC_INTERVAL_OPTIONS
+    : [...SYNC_INTERVAL_OPTIONS, { hours: syncIntervalHours, label: `${syncIntervalHours} שעות` }];
+  // [CUSTOM-SYNC-INTERVAL-END]
 
   // [CUSTOM-CSV-START]
   const csvConfig = configStore.config?.outputVendors?.csv;
@@ -66,6 +84,36 @@ function GeneralSettings() {
                 </Form.Text>
               </Form.Group>
             </div>
+
+            {/* [CUSTOM-SYNC-INTERVAL-START] */}
+            <div className={styles.scrapingSection}>
+              <h3 className={styles.scrapingHeader}>
+                <i className="bi bi-clock-history ms-1"></i>
+                תדירות עדכון החשבונות
+              </h3>
+              <p className={styles.scrapingDescription}>
+                כל כמה זמן האפליקציה תעדכן אוטומטית את העסקאות מכל החשבונות. העדכון מתבצע כל עוד האפליקציה פתוחה או
+                ממוזערת למגש המערכת.
+              </p>
+              <Form.Group>
+                <Form.Label className={styles.scrapingLabel}>עדכן כל</Form.Label>
+                <Form.Select
+                  className={styles.scrapingSelect}
+                  value={syncIntervalHours}
+                  onChange={(e) => configStore.setPeriodicScrapingIntervalHours(Number(e.target.value))}
+                >
+                  {syncIntervalOptions.map(({ hours, label }) => (
+                    <option key={hours} value={hours}>
+                      {label}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Text className={styles.scrapingHint}>
+                  עדכון תכוף מדי עלול לגרום לבנקים לבקש אימות נוסף (למשל קוד ב-SMS).
+                </Form.Text>
+              </Form.Group>
+            </div>
+            {/* [CUSTOM-SYNC-INTERVAL-END] */}
 
             {/* [CUSTOM-CSV-START] */}
             <div className={styles.scrapingSection}>

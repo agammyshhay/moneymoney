@@ -119,7 +119,7 @@ Vite 5 with per-package configs (`vite.config.js` in each package). Main builds 
 - **Prettier** line width: 120 characters
 - **CSS Modules** preferred for component styling — import as `import styles from './Component.module.css'`. Avoid `<style>` tags inside JSX (causes global CSS pollution).
 - **RTL Hebrew app** — The entire UI is in Hebrew with right-to-left layout. Bootstrap 5 RTL variant loaded. Use `margin-inline-start/end` instead of `margin-right/left`. Form inputs expecting LTR content (URLs, API keys) use `direction: ltr` override. All user-facing strings must be in Hebrew.
-- **`[CUSTOM-*]` markers** — Custom modifications are wrapped in `[CUSTOM-NAME-START]` / `[CUSTOM-NAME-END]` comments. Marker types: `CUSTOM-STARTUP`, `CUSTOM-THEME`, `CUSTOM-FIX`, `CUSTOM-NEXT-SYNC`, `CUSTOM-SUMMARY`, `CUSTOM-HISTORY`, `CUSTOM-SINGLE-RUN`, `CUSTOM-AUTO-RUN`, `CUSTOM-BASE44`, `CUSTOM-LAYOUT`, `CUSTOM-CSV`, `CUSTOM-SYNC-INTERVAL`. Markers span multiple files when a feature touches main + preload + renderer.
+- **`[CUSTOM-*]` markers** — Custom modifications are wrapped in `[CUSTOM-NAME-START]` / `[CUSTOM-NAME-END]` comments. Marker types: `CUSTOM-STARTUP`, `CUSTOM-THEME`, `CUSTOM-FIX`, `CUSTOM-NEXT-SYNC`, `CUSTOM-SUMMARY`, `CUSTOM-HISTORY`, `CUSTOM-SINGLE-RUN`, `CUSTOM-AUTO-RUN`, `CUSTOM-BASE44`, `CUSTOM-LAYOUT`, `CUSTOM-CSV`, `CUSTOM-SYNC-INTERVAL`, `CUSTOM-SHOW-BROWSER`. Markers span multiple files when a feature touches main + preload + renderer.
 
 ## Core Types
 

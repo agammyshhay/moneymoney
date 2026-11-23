@@ -23,10 +23,6 @@ function GeneralSettings() {
   const configStore = useConfigStore();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function _toggleShowBrowser() {
-    configStore.toggleShowBrowser();
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _handleTimeoutChanged = (timeout: string) => {
     const numberTimeout = Number(timeout);
     if (numberTimeout) {
@@ -149,6 +145,28 @@ function GeneralSettings() {
               )}
             </div>
             {/* [CUSTOM-CSV-END] */}
+
+            {/* [CUSTOM-SHOW-BROWSER-START] */}
+            <div className={styles.scrapingSection}>
+              <h3 className={styles.scrapingHeader}>
+                <i className="bi bi-window ms-1"></i>
+                הצגת הדפדפן בזמן השליפה
+              </h3>
+              <p className={styles.scrapingDescription}>
+                פותח חלון דפדפן גלוי בזמן שליפת הנתונים, כך שאפשר לראות מה קורה באתר הבנק. שימושי לאיתור תקלות או כשהבנק
+                מבקש אימות נוסף.
+              </p>
+              <Form.Group>
+                <Form.Check
+                  type="switch"
+                  id="show-browser-switch"
+                  label="הצג את הדפדפן בזמן השליפה"
+                  checked={configStore.config?.scraping?.showBrowser ?? false}
+                  onChange={() => configStore.toggleShowBrowser()}
+                />
+              </Form.Group>
+            </div>
+            {/* [CUSTOM-SHOW-BROWSER-END] */}
 
             {/* [CUSTOM-STARTUP-START] */}
             <Form.Group className="mt-3">
